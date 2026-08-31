@@ -1,0 +1,95 @@
+<header class="navbar">
+  <div class="navbar-container">
+    <button class="menu-btn" (click)="toggleMenu()" aria-label="Toggle menu">
+      <span class="material-icons">menu</span>
+    </button>
+    
+    <h1 class="logo" (click)="navigateTo('/')" style="cursor: pointer;">CineBook</h1>
+    
+    <div class="navbar-actions">
+      <div class="location-selector" (click)="openLocationSelector()">
+        <span class="location-text" *ngIf="selectedCity$ | async as city">{{ city }}</span>
+        <span class="material-icons">location_on</span>
+      </div>
+      
+      <button class="search-btn" (click)="openSearch()" aria-label="Search">
+        <span class="material-icons">search</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Navigation Drawer -->
+<div class="nav-drawer" [class.open]="isMenuOpen" (click)="closeMenu()">
+  <div class="nav-drawer-content" (click)="$event.stopPropagation()">
+    <div class="nav-header">
+      <h2 class="nav-logo">CineBook</h2>
+      <button class="close-btn" (click)="closeMenu()" aria-label="Close menu">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    
+    <nav class="nav-links">
+      <a class="nav-link" (click)="navigateTo('/')" [class.active]="router.url === '/'">
+        <span class="material-icons">home</span>
+        Home
+      </a>
+      <a class="nav-link" (click)="navigateTo('/movies')" [class.active]="router.url.startsWith('/movies')">
+        <span class="material-icons">movie</span>
+        Movies
+      </a>
+      <a class="nav-link" (click)="navigateTo('/cinemas')" [class.active]="router.url === '/cinemas'">
+        <span class="material-icons">theater_comedy</span>
+        Cinemas
+      </a>
+      <a class="nav-link" (click)="navigateTo('/showtimes')" [class.active]="router.url === '/showtimes'">
+        <span class="material-icons">schedule</span>
+        Showtimes
+      </a>
+      <a class="nav-link" (click)="navigateTo('/offers')" [class.active]="router.url === '/offers'">
+        <span class="material-icons">local_offer</span>
+        Offers
+      </a>
+      <a class="nav-link" (click)="navigateTo('/experiences')" [class.active]="router.url === '/experiences'">
+        <span class="material-icons">star</span>
+        Experiences
+      </a>
+      <a class="nav-link" (click)="navigateTo('/trailers')" [class.active]="router.url === '/trailers'">
+        <span class="material-icons">play_circle</span>
+        Trailers
+      </a>
+      
+      <div class="nav-divider"></div>
+      
+      <a class="nav-link" (click)="navigateTo('/my-bookings')" [class.active]="router.url === '/my-bookings'">
+        <span class="material-icons">confirmation_number</span>
+        My Bookings
+      </a>
+      
+      <ng-container *ngIf="currentUser$ | async as user">
+        <a class="nav-link" (click)="navigateTo('/profile')" [class.active]="router.url === '/profile'">
+          <span class="material-icons">account_circle</span>
+          Profile
+        </a>
+        <a class="nav-link nav-link-danger" (click)="logout()">
+          <span class="material-icons">logout</span>
+          Logout
+        </a>
+      </ng-container>
+      
+      <ng-container *ngIf="!(currentUser$ | async)">
+        <a class="nav-link" (click)="navigateTo('/login')" [class.active]="router.url === '/login'">
+          <span class="material-icons">login</span>
+          Login
+        </a>
+        <a class="nav-link" (click)="navigateTo('/signup')" [class.active]="router.url === '/signup'">
+          <span class="material-icons">person_add</span>
+          Sign Up
+        </a>
+      </ng-container>
+    </nav>
+  </div>
+</div>
+
+<!-- Overlay -->
+<div class="nav-overlay" [class.active]="isMenuOpen" (click)="closeMenu()"></div>

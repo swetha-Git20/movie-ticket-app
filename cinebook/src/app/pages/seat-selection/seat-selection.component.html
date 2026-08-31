@@ -1,0 +1,110 @@
+<app-navbar></app-navbar>
+
+<main class="seat-selection-page" *ngIf="!isLoading">
+  <!-- Header -->
+  <section class="page-header">
+    <div class="header-content">
+      <button class="back-btn" (click)="goBack()">
+        <span class="material-icons">arrow_back</span>
+      </button>
+      <div class="movie-info">
+        <h1 class="movie-title" *ngIf="movie">{{ movie.title }}</h1>
+        <div class="showtime-info" *ngIf="cinema && showtime">
+          <span class="cinema-name">{{ cinema.name }}</span>
+          <span class="separator">•</span>
+          <span class="showtime-date">{{ showtime.date }}</span>
+          <span class="separator">•</span>
+          <span class="showtime-time">{{ showtime.time }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Screen -->
+  <section class="screen-section">
+    <div class="screen-container">
+      <div class="screen"></div>
+      <p class="screen-label">SCREEN</p>
+    </div>
+  </section>
+
+  <!-- Seat Grid -->
+  <section class="seat-grid-section">
+    <div class="seat-grid">
+      <div 
+        *ngFor="let seat of seats"
+        class="seat"
+        [class.available]="seat.status === 'available'"
+        [class.selected]="isSeatSelected(seat)"
+        [class.occupied]="seat.status === 'occupied'"
+        [class.vip]="seat.type === 'vip'"
+        [class.premium]="seat.type === 'premium'"
+        [class.standard]="seat.type === 'standard'"
+        (click)="toggleSeat(seat)">
+        <span class="seat-label">{{ seat.row }}{{ seat.number }}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Legend -->
+  <section class="legend-section">
+    <div class="legend-item">
+      <div class="legend-seat available"></div>
+      <span class="legend-label">Available</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-seat selected"></div>
+      <span class="legend-label">Selected</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-seat occupied"></div>
+      <span class="legend-label">Occupied</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-seat vip"></div>
+      <span class="legend-label">VIP ($18)</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-seat premium"></div>
+      <span class="legend-label">Premium ($14)</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-seat standard"></div>
+      <span class="legend-label">Standard ($10)</span>
+    </div>
+  </section>
+
+  <!-- Bottom Sheet -->
+  <section class="bottom-sheet">
+    <div class="selection-summary">
+      <div class="selected-seats-info">
+        <span class="seats-count">{{ selectedSeats.length }}/{{ maxSeats }} seats</span>
+        <span class="selected-seats-list" *ngIf="selectedSeats.length > 0">
+          {{ selectedSeats.map(s => s.row + s.number).join(', ') }}
+        </span>
+      </div>
+      <div class="total-price">
+        <span class="price-label">Total</span>
+        <span class="price-amount">${{ totalPrice }}</span>
+      </div>
+    </div>
+    
+    <button 
+      class="proceed-btn"
+      [disabled]="selectedSeats.length === 0"
+      (click)="proceedToFood()">
+      Proceed to Food
+      <span class="material-icons">arrow_forward</span>
+    </button>
+  </section>
+</main>
+
+<!-- Loading State -->
+<main class="seat-selection-page" *ngIf="isLoading">
+  <div class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading seat layout...</p>
+  </div>
+</main>
+
+<app-footer></app-footer>

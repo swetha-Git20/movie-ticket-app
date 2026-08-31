@@ -1,0 +1,59 @@
+.skeleton-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #2a2a2c 25%, #353437 50%, #2a2a2c 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton.card {
+  width: 100%;
+  aspect-ratio: 2/3;
+  border-radius: 12px;
+}
+
+.skeleton.text {
+  height: 16px;
+  width: 100%;
+  border-radius: 4px;
+}
+
+.skeleton.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.skeleton.banner {
+  width: 100%;
+  height: 200px;
+  border-radius: 12px;
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+  .skeleton-container {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .skeleton-container {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+}

@@ -1,0 +1,197 @@
+.experiences-page {
+  min-height: 100vh;
+  background: #131315;
+  padding-top: 64px;
+}
+
+/* Page Header */
+.page-header {
+  background: linear-gradient(135deg, #1c1c1f 0%, #0d0d0f 100%);
+  padding: 32px 16px;
+  border-bottom: 1px solid rgba(53, 52, 55, 0.3);
+}
+
+.header-content {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.page-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #e5e1e4;
+  margin: 0 0 8px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: #c8c6c9;
+  margin: 0;
+}
+
+/* Experiences Section */
+.experiences-section {
+  padding: 32px 16px;
+}
+
+.experiences-grid {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.experience-card {
+  background: #1c1c1f;
+  border-radius: 12px;
+  padding: 24px;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.experience-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.experience-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.experience-icon .material-icons {
+  font-size: 32px;
+}
+
+.experience-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.experience-name {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.experience-description {
+  font-size: 14px;
+  color: #c8c6c9;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Info Section */
+.info-section {
+  padding: 32px 16px 48px;
+}
+
+.info-card {
+  max-width: 1280px;
+  margin: 0 auto;
+  background: #1c1c1f;
+  border-radius: 12px;
+  padding: 32px;
+  border: 1px solid rgba(53, 52, 55, 0.3);
+}
+
+.info-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #e5e1e4;
+  margin: 0 0 24px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.info-features {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.feature-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.feature-icon {
+  font-size: 32px;
+  color: #ffb3b2;
+  flex-shrink: 0;
+}
+
+.feature-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.feature-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #e5e1e4;
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.feature-description {
+  font-size: 14px;
+  color: #c8c6c9;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+  .page-header {
+    padding: 48px 24px;
+  }
+  
+  .page-title {
+    font-size: 40px;
+  }
+  
+  .page-subtitle {
+    font-size: 16px;
+  }
+  
+  .experiences-section {
+    padding: 48px 24px;
+  }
+  
+  .experiences-grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+  }
+  
+  .info-section {
+    padding: 48px 24px 64px;
+  }
+  
+  .info-features {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .experiences-grid {
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  }
+  
+  .info-card {
+    padding: 48px;
+  }
+}

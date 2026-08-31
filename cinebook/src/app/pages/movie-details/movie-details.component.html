@@ -1,0 +1,169 @@
+<app-navbar></app-navbar>
+
+<main class="movie-details-page" *ngIf="!isLoading && movie">
+  <!-- Backdrop Header -->
+  <section class="movie-header">
+    <div class="backdrop" [style.background-image]="'url(' + movie.backdrop + ')'"></div>
+    <div class="backdrop-overlay"></div>
+    
+    <div class="header-content">
+      <button class="back-btn" (click)="router.navigate(['/'])">
+        <span class="material-icons">arrow_back</span>
+      </button>
+      
+      <div class="movie-poster-container">
+        <img class="movie-poster" [src]="movie.poster" [alt]="movie.title" />
+      </div>
+      
+      <div class="movie-info-header">
+        <h1 class="movie-title">{{ movie.title }}</h1>
+        <div class="movie-meta">
+          <span class="rating-badge">
+            <span class="material-icons">star</span>
+            {{ movie.rating }}
+          </span>
+          <span class="meta-item">{{ movie.duration }}</span>
+          <span class="meta-item">{{ movie.language }}</span>
+        </div>
+        <div class="genre-tags">
+          <span class="genre-tag" *ngFor="let genre of movie.genre">{{ genre }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Movie Content -->
+  <section class="movie-content">
+    <div class="content-grid">
+      <!-- Left Column -->
+      <div class="main-content">
+        <!-- Synopsis -->
+        <div class="content-section">
+          <h2 class="section-heading">Synopsis</h2>
+          <p class="synopsis">{{ movie.synopsis }}</p>
+        </div>
+
+        <!-- Cast & Crew -->
+        <div class="content-section">
+          <h2 class="section-heading">Cast & Crew</h2>
+          <div class="cast-list">
+            <div class="cast-item">
+              <span class="cast-label">Director:</span>
+              <span class="cast-name">{{ movie.director }}</span>
+            </div>
+            <div class="cast-item">
+              <span class="cast-label">Cast:</span>
+              <span class="cast-name">{{ movie.cast.join(', ') }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Showtime Selection -->
+        <div class="content-section">
+          <h2 class="section-heading">Book Tickets</h2>
+          
+          <div class="booking-controls">
+            <div class="control-group">
+              <label class="control-label">Select Cinema</label>
+              <select class="control-select" [(ngModel)]="selectedCinema" (change)="onCinemaChange(selectedCinema)">
+                <option value="">Choose cinema</option>
+                <option *ngFor="let cinema of availableCinemas" [value]="cinema.id">{{ cinema.name }}</option>
+              </select>
+            </div>
+            
+            <div class="control-group">
+              <label class="control-label">Select Date</label>
+              <select class="control-select" [(ngModel)]="selectedDate" (change)="onDateChange(selectedDate)" [disabled]="!selectedCinema">
+                <option value="">Choose date</option>
+                <option *ngFor="let date of availableDates" [value]="date">{{ formatDate(date) }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="showtimes-list" *ngIf="availableShowtimes.length > 0">
+            <h3 class="showtimes-title">Available Showtimes</h3>
+            <div class="showtimes-grid">
+              <button 
+                *ngFor="let showtime of availableShowtimes"
+                class="showtime-btn"
+                [class.selected]="selectedShowtime?.id === showtime.id"
+                (click)="selectShowtime(showtime)">
+                <span class="showtime-time">{{ showtime.time }}</span>
+                <span class="showtime-format">{{ showtime.format }}</span>
+                <span class="showtime-price">${{ showtime.price }}</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="no-showtimes" *ngIf="selectedCinema && selectedDate && availableShowtimes.length === 0">
+            <p>No showtimes available for this selection.</p>
+          </div>
+
+          <button 
+            class="book-tickets-btn"
+            [disabled]="!selectedShowtime"
+            (click)="proceedToSeatSelection()">
+            <span class="material-icons">confirmation_number</span>
+            Select Seats
+          </button>
+        </div>
+
+        <!-- Trailer -->
+        <div class="content-section">
+          <h2 class="section-heading">Trailer</h2>
+          <button class="trailer-btn" (click)="openTrailer()">
+            <span class="material-icons">play_circle</span>
+            Watch Trailer
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Column - Recommended -->
+      <div class="sidebar">
+        <h2 class="section-heading">Recommended Movies</h2>
+        <div class="recommended-grid">
+          <app-movie-card 
+            *ngFor="let recMovie of recommendedMovies"
+            [movie]="recMovie"
+            (bookNow)="onBookNow($event)">
+          </app-movie-card>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Loading State -->
+<main class="movie-details-page" *ngIf="isLoading">
+  <div class="skeleton-header">
+    <div class="skeleton-poster"></div>
+    <div class="skeleton-info">
+      <div class="skeleton-title"></div>
+      <div class="skeleton-meta"></div>
+    </div>
+  </div>
+  <div class="skeleton-content">
+    <div class="skeleton-text"></div>
+    <div class="skeleton-text"></div>
+    <div class="skeleton-text"></div>
+  </div>
+</main>
+
+<!-- Trailer Modal -->
+<app-modal [isOpen]="showTrailerModal" [title]="'Movie Trailer'" (close)="closeTrailer()">
+  <div class="trailer-container">
+    <iframe 
+      *ngIf="movie?.trailerUrl"
+      [src]="movie.trailerUrl"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen>
+    </iframe>
+    <div class="trailer-placeholder" *ngIf="!movie?.trailerUrl">
+      <span class="material-icons">movie</span>
+      <p>Trailer not available</p>
+    </div>
+  </div>
+</app-modal>
+
+<app-footer></app-footer>

@@ -1,0 +1,71 @@
+<app-navbar></app-navbar>
+
+<main class="cinemas-page">
+  <section class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">Cinemas</h1>
+      <p class="page-subtitle">Find your perfect movie experience</p>
+    </div>
+  </section>
+
+  <!-- Filters -->
+  <section class="filters-section">
+    <div class="filters-container">
+      <div class="filter-group">
+        <label class="filter-label">City</label>
+        <select class="filter-select" [(ngModel)]="selectedCity" (change)="onCityChange(selectedCity)">
+          <option value="">All Cities</option>
+          <option *ngFor="let city of availableCities" [value]="city">{{ city }}</option>
+        </select>
+      </div>
+      
+      <div class="filter-group search-group">
+        <label class="filter-label">Search</label>
+        <div class="search-input-wrapper">
+          <span class="material-icons search-icon">search</span>
+          <input 
+            type="text" 
+            class="search-input" 
+            placeholder="Search cinemas..." 
+            [(ngModel)]="searchQuery"
+            (input)="onSearchChange(searchQuery)"
+          />
+          <button class="clear-search" *ngIf="searchQuery" (click)="searchQuery = ''; onSearchChange('')">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+      </div>
+      
+      <button class="clear-filters-btn" (click)="clearFilters()" *ngIf="selectedCity || searchQuery">
+        Clear Filters
+      </button>
+    </div>
+  </section>
+
+  <!-- Cinemas Grid -->
+  <section class="cinemas-section">
+    <div class="results-info" *ngIf="!isLoading">
+      <span class="results-count">{{ filteredCinemas.length }} cinemas found</span>
+    </div>
+    
+    <div class="cinemas-grid" *ngIf="!isLoading && filteredCinemas.length > 0">
+      <app-cinema-card 
+        *ngFor="let cinema of filteredCinemas"
+        [cinema]="cinema">
+      </app-cinema-card>
+    </div>
+    
+    <div class="empty-state" *ngIf="!isLoading && filteredCinemas.length === 0">
+      <span class="material-icons empty-icon">theater_comedy</span>
+      <h3 class="empty-title">No cinemas found</h3>
+      <p class="empty-message">Try adjusting your filters or search terms</p>
+      <button class="reset-btn" (click)="clearFilters()">Reset Filters</button>
+    </div>
+    
+    <div class="cinemas-grid" *ngIf="isLoading">
+      <app-skeleton-loader type="card" [count]="6"></app-skeleton-loader>
+    </div>
+  </section>
+</main>
+
+<app-footer></app-footer>

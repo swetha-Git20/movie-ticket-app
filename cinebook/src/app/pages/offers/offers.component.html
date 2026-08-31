@@ -1,0 +1,59 @@
+<app-navbar></app-navbar>
+
+<main class="offers-page">
+  <section class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">Offers & Promotions</h1>
+      <p class="page-subtitle">Save money on your movie experience</p>
+    </div>
+  </section>
+
+  <section class="offers-section">
+    <div class="offers-grid" *ngIf="!isLoading">
+      <div class="offer-card" *ngFor="let offer of offers">
+        <div class="offer-image">
+          <img [src]="offer.imageUrl" [alt]="offer.title" />
+        </div>
+        
+        <div class="offer-content">
+          <h3 class="offer-title">{{ offer.title }}</h3>
+          <p class="offer-description">{{ offer.description }}</p>
+          
+          <div class="coupon-section">
+            <div class="coupon-code">
+              <span class="code-text">{{ offer.code }}</span>
+              <button class="copy-btn" (click)="copyCouponCode(offer.code)">
+                <span class="material-icons">content_copy</span>
+              </button>
+            </div>
+          </div>
+          
+          <div class="offer-details">
+            <div class="detail-item">
+              <span class="detail-label">Discount</span>
+              <span class="detail-value">
+                {{ offer.discountType === 'percentage' ? offer.discountValue + '%' : '$' + offer.discountValue }}
+              </span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Min. Booking</span>
+              <span class="detail-value">${{ offer.minBookingAmount }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Valid Until</span>
+              <span class="detail-value">{{ offer.validUntil }}</span>
+            </div>
+          </div>
+          
+          <p class="offer-terms">{{ offer.terms }}</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="offers-grid" *ngIf="isLoading">
+      <app-skeleton-loader type="card" [count]="4"></app-skeleton-loader>
+    </div>
+  </section>
+</main>
+
+<app-footer></app-footer>

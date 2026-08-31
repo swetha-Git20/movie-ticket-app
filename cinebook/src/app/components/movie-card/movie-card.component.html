@@ -1,0 +1,26 @@
+<div class="movie-card" (click)="navigateToMovie()">
+  <div class="movie-poster">
+    <img [src]="movie.poster" [alt]="movie.title" loading="lazy" />
+    <div class="rating-badge">
+      <span class="material-icons">star</span>
+      <span class="rating">{{ movie.rating }}</span>
+    </div>
+    <div class="movie-overlay">
+      <button class="book-btn" (click)="$event.stopPropagation(); onBookNow()">
+        <span class="material-icons">confirmation_number</span>
+        Book Now
+      </button>
+    </div>
+  </div>
+  
+  <div class="movie-info">
+    <h3 class="movie-title">{{ movie.title }}</h3>
+    <div class="movie-meta">
+      <span class="movie-genre">{{ movie.genre[0] }}</span>
+      <span class="movie-duration">{{ movie.duration }}</span>
+    </div>
+    <div class="movie-price" *ngIf="showPrice">
+      <span>From ${{ movie.price }}</span>
+    </div>
+  </div>
+</div>

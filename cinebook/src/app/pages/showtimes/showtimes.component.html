@@ -1,0 +1,102 @@
+<app-navbar></app-navbar>
+
+<main class="showtimes-page">
+  <section class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">Showtimes</h1>
+      <p class="page-subtitle">Find showtimes for your favorite movies</p>
+    </div>
+  </section>
+
+  <!-- Filters -->
+  <section class="filters-section">
+    <div class="filters-container">
+      <div class="filter-group">
+        <label class="filter-label">Movie</label>
+        <select class="filter-select" [(ngModel)]="selectedMovie" (change)="onMovieChange(selectedMovie)">
+          <option value="">All Movies</option>
+          <option *ngFor="let movie of movies" [value]="movie.id">{{ movie.title }}</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label class="filter-label">Cinema</label>
+        <select class="filter-select" [(ngModel)]="selectedCinema" (change)="onCinemaChange(selectedCinema)">
+          <option value="">All Cinemas</option>
+          <option *ngFor="let cinema of cinemas" [value]="cinema.id">{{ cinema.name }}</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label class="filter-label">Date</label>
+        <select class="filter-select" [(ngModel)]="selectedDate" (change)="onDateChange(selectedDate)">
+          <option *ngFor="let date of availableDates" [value]="date">{{ formatDate(date) }}</option>
+        </select>
+      </div>
+      
+      <button class="clear-filters-btn" (click)="clearFilters()" *ngIf="selectedMovie || selectedCinema">
+        Clear
+      </button>
+    </div>
+  </section>
+
+  <!-- Showtimes Results -->
+  <section class="showtimes-section">
+    <div class="results-info" *ngIf="!isLoading">
+      <span class="results-count">{{ showtimes.length }} showtimes found</span>
+    </div>
+    
+    <div class="showtimes-list" *ngIf="!isLoading && Object.keys(groupedShowtimes).length > 0">
+      <div class="cinema-group" *ngFor="let cinemaId of Object.keys(groupedShowtimes)">
+        <div class="cinema-header">
+          <div class="cinema-info">
+            <h3 class="cinema-name">{{ getCinemaName(cinemaId) }}</h3>
+            <p class="cinema-location" *ngIf="getCinema(cinemaId)">{{ getCinema(cinemaId)!.city }}</p>
+          </div>
+          <button class="view-cinema-btn" (click)="router.navigate(['/cinemas'])">
+            View Cinema
+            <span class="material-icons">arrow_forward</span>
+          </button>
+        </div>
+        
+        <div class="showtimes-grid">
+          <div 
+            class="showtime-card"
+            *ngFor="let showtime of groupedShowtimes[cinemaId]"
+            (click)="selectShowtime(showtime)">
+            <div class="showtime-movie">
+              <span class="movie-name">{{ getMovieName(showtime.movieId) }}</span>
+              <span class="showtime-format">{{ showtime.format }}</span>
+            </div>
+            <div class="showtime-details">
+              <span class="showtime-time">{{ showtime.time }}</span>
+              <span class="showtime-price">${{ showtime.price }}</span>
+            </div>
+            <div class="showtime-availability">
+              <span class="available-seats">{{ showtime.availableSeats }} seats</span>
+              <span class="material-icons chevron">chevron_right</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="empty-state" *ngIf="!isLoading && Object.keys(groupedShowtimes).length === 0">
+      <span class="material-icons empty-icon">schedule</span>
+      <h3 class="empty-title">No showtimes available</h3>
+      <p class="empty-message">Try adjusting your filters or selecting a different date</p>
+      <button class="reset-btn" (click)="clearFilters()">Reset Filters</button>
+    </div>
+    
+    <div class="showtimes-list" *ngIf="isLoading">
+      <div class="skeleton-group" *ngFor="let i of [].constructor(3)">
+        <div class="skeleton-header"></div>
+        <div class="skeleton-grid">
+          <div class="skeleton-card" *ngFor="let j of [].constructor(2)"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<app-footer></app-footer>

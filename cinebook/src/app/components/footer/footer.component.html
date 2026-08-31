@@ -1,0 +1,42 @@
+<footer class="footer">
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3 class="footer-logo">CineBook</h3>
+      <p class="footer-tagline">Your Movie. Your Seat. Your Experience.</p>
+    </div>
+    
+    <div class="footer-section">
+      <h4 class="footer-heading">Quick Links</h4>
+      <ul class="footer-links">
+        <li><a (click)="navigateTo('/movies')">Movies</a></li>
+        <li><a (click)="navigateTo('/cinemas')">Cinemas</a></li>
+        <li><a (click)="navigateTo('/showtimes')">Showtimes</a></li>
+        <li><a (click)="navigateTo('/offers')">Offers</a></li>
+      </ul>
+    </div>
+    
+    <div class="footer-section">
+      <h4 class="footer-heading">Support</h4>
+      <ul class="footer-links">
+        <li><a (click)="navigateTo('/my-bookings')">My Bookings</a></li>
+        <li><a (click)="navigateTo('/experiences')">Experiences</a></li>
+        <li><a (click)="navigateTo('/trailers')">Trailers</a></li>
+        <li><a href="#">Help Center</a></li>
+      </ul>
+    </div>
+    
+    <div class="footer-section">
+      <h4 class="footer-heading">Legal</h4>
+      <ul class="footer-links">
+        <li><a href="#">Terms of Service</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Refund Policy</a></li>
+        <li><a href="#">Contact Us</a></li>
+      </ul>
+    </div>
+  </div>
+  
+  <div class="footer-bottom">
+    <p>&copy; {{ currentYear }} CineBook. All rights reserved.</p>
+  </div>
+</footer>

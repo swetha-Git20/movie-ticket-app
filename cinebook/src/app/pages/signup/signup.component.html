@@ -1,0 +1,99 @@
+<app-navbar></app-navbar>
+
+<main class="auth-page">
+  <div class="auth-container">
+    <div class="auth-header">
+      <h1 class="auth-title">Create Account</h1>
+      <p class="auth-subtitle">Join CineBook for the best movie experience</p>
+    </div>
+
+    <form class="auth-form" (ngSubmit)="signup()">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input 
+          type="text" 
+          class="form-input" 
+          placeholder="John Doe" 
+          [(ngModel)]="name"
+          [disabled]="isLoading"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input 
+          type="email" 
+          class="form-input" 
+          placeholder="your@email.com" 
+          [(ngModel)]="email"
+          [disabled]="isLoading"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Mobile Number</label>
+        <input 
+          type="tel" 
+          class="form-input" 
+          placeholder="1234567890" 
+          [(ngModel)]="mobile"
+          [disabled]="isLoading"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">City</label>
+        <select class="form-select" [(ngModel)]="city" [disabled]="isLoading">
+          <option *ngFor="let city of cities" [value]="city">{{ city }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input 
+          type="password" 
+          class="form-input" 
+          placeholder="••••••••" 
+          [(ngModel)]="password"
+          [disabled]="isLoading"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Confirm Password</label>
+        <input 
+          type="password" 
+          class="form-input" 
+          placeholder="••••••••" 
+          [(ngModel)]="confirmPassword"
+          [disabled]="isLoading"
+        />
+      </div>
+
+      <div class="error-message" *ngIf="errorMessage">
+        <span class="material-icons error-icon">error</span>
+        {{ errorMessage }}
+      </div>
+
+      <button 
+        type="submit" 
+        class="submit-btn"
+        [disabled]="isLoading">
+        <span *ngIf="!isLoading">Create Account</span>
+        <span *ngIf="isLoading">
+          <span class="spinner"></span>
+          Creating account...
+        </span>
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <p class="auth-footer-text">
+        Already have an account? 
+        <button class="link-btn" (click)="navigateToLogin()">Sign in</button>
+      </p>
+    </div>
+  </div>
+</main>
+
+<app-footer></app-footer>

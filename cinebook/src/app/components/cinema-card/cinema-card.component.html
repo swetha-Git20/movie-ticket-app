@@ -1,0 +1,29 @@
+<div class="cinema-card">
+  <div class="cinema-image">
+    <img [src]="cinema.imageUrl" [alt]="cinema.name" loading="lazy" />
+    <div class="rating-badge">
+      <span class="material-icons">star</span>
+      <span class="rating">{{ cinema.rating }}</span>
+    </div>
+  </div>
+  
+  <div class="cinema-info">
+    <h3 class="cinema-name">{{ cinema.name }}</h3>
+    <p class="cinema-location">{{ cinema.city }}</p>
+    <p class="cinema-address">{{ cinema.address }}</p>
+    
+    <div class="cinema-facilities">
+      <span class="facility-tag" *ngFor="let facility of cinema.facilities.slice(0, 3)">
+        {{ facility }}
+      </span>
+      <span class="facility-tag more" *ngIf="cinema.facilities.length > 3">
+        +{{ cinema.facilities.length - 3 }}
+      </span>
+    </div>
+    
+    <button class="showtimes-btn" (click)="navigateToShowtimes()">
+      View Showtimes
+      <span class="material-icons">arrow_forward</span>
+    </button>
+  </div>
+</div>

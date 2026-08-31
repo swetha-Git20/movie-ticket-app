@@ -1,0 +1,131 @@
+<app-navbar></app-navbar>
+
+<main class="my-bookings-page">
+  <!-- Header -->
+  <section class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">My Bookings</h1>
+      <p class="page-subtitle">View and manage your movie bookings</p>
+    </div>
+  </section>
+
+  <!-- Filter Tabs -->
+  <section class="filter-section">
+    <div class="filter-tabs">
+      <button 
+        class="filter-tab"
+        [class.active]="statusFilter === 'all'"
+        (click)="setStatusFilter('all')">
+        All
+      </button>
+      <button 
+        class="filter-tab"
+        [class.active]="statusFilter === 'confirmed'"
+        (click)="setStatusFilter('confirmed')">
+        Confirmed
+      </button>
+      <button 
+        class="filter-tab"
+        [class.active]="statusFilter === 'completed'"
+        (click)="setStatusFilter('completed')">
+        Completed
+      </button>
+      <button 
+        class="filter-tab"
+        [class.active]="statusFilter === 'cancelled'"
+        (click)="setStatusFilter('cancelled')">
+        Cancelled
+      </button>
+    </div>
+  </section>
+
+  <!-- Bookings List -->
+  <section class="bookings-section">
+    <div class="bookings-list" *ngIf="!isLoading && filteredBookings.length > 0">
+      <div class="booking-card" *ngFor="let booking of filteredBookings">
+        <div class="booking-poster">
+          <img [src]="booking.moviePoster" [alt]="booking.movieTitle" />
+        </div>
+        
+        <div class="booking-info">
+          <div class="booking-header">
+            <h3 class="booking-movie">{{ booking.movieTitle }}</h3>
+            <span class="status-badge" [ngClass]="getStatusBadgeClass(booking.status)">
+              {{ getStatusLabel(booking.status) }}
+            </span>
+          </div>
+          
+          <div class="booking-details">
+            <div class="detail-item">
+              <span class="detail-icon material-icons">theater_comedy</span>
+              <span class="detail-text">{{ booking.cinemaName }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-icon material-icons">calendar_today</span>
+              <span class="detail-text">{{ formatDate(booking.date) }} at {{ booking.time }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-icon material-icons">event_seat</span>
+              <span class="detail-text">{{ booking.seats.map(s => s.row + s.number).join(', ') }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-icon material-icons">payments</span>
+              <span class="detail-text">${{ booking.total }}</span>
+            </div>
+          </div>
+          
+          <div class="booking-actions">
+            <button class="action-btn view-btn" (click)="viewBooking(booking.id)">
+              <span class="material-icons">visibility</span>
+              View Ticket
+            </button>
+            <button 
+              class="action-btn cancel-btn"
+              [disabled]="booking.status === 'cancelled'"
+              (click)="openCancelModal(booking)">
+              <span class="material-icons">cancel</span>
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="empty-state" *ngIf="!isLoading && filteredBookings.length === 0">
+      <span class="material-icons empty-icon">confirmation_number</span>
+      <h3 class="empty-title">No bookings found</h3>
+      <p class="empty-message" *ngIf="statusFilter === 'all'">You haven't made any bookings yet</p>
+      <p class="empty-message" *ngIf="statusFilter !== 'all'">No {{ statusFilter }} bookings</p>
+      <button class="browse-btn" (click)="router.navigate(['/'])" *ngIf="statusFilter === 'all'">
+        Browse Movies
+      </button>
+    </div>
+    
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="loading-spinner"></div>
+      <p>Loading your bookings...</p>
+    </div>
+  </section>
+</main>
+
+<!-- Cancel Confirmation Modal -->
+<app-modal [isOpen]="showCancelModal" [title]="'Cancel Booking'" (close)="closeCancelModal()">
+  <div class="cancel-content">
+    <div class="cancel-warning">
+      <span class="material-icons warning-icon">warning</span>
+      <h3>Are you sure you want to cancel this booking?</h3>
+      <p *ngIf="bookingToCancel">
+        <strong>{{ bookingToCancel.movieTitle }}</strong><br>
+        {{ bookingToCancel.cinemaName }} • {{ bookingToCancel.date }} at {{ bookingToCancel.time }}
+      </p>
+      <p class="warning-text">This action cannot be undone.</p>
+    </div>
+    
+    <div class="cancel-actions">
+      <button class="cancel-back-btn" (click)="closeCancelModal()">No, Keep Booking</button>
+      <button class="cancel-confirm-btn" (click)="confirmCancel()">Yes, Cancel Booking</button>
+    </div>
+  </div>
+</app-modal>
+
+<app-footer></app-footer>

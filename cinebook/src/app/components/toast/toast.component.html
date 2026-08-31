@@ -1,0 +1,8 @@
+<div class="toast" [class.visible]="isVisible" [class.success]="type === 'success'" [class.error]="type === 'error'" [class.info]="type === 'info'">
+  <div class="toast-content">
+    <span class="toast-icon material-icons" *ngIf="type === 'success'">check_circle</span>
+    <span class="toast-icon material-icons" *ngIf="type === 'error'">error</span>
+    <span class="toast-icon material-icons" *ngIf="type === 'info'">info</span>
+    <span class="toast-message">{{ message }}</span>
+  </div>
+</div>

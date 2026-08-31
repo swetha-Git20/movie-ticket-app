@@ -1,0 +1,110 @@
+<app-navbar></app-navbar>
+
+<main class="food-page">
+  <!-- Header -->
+  <section class="page-header">
+    <div class="header-content">
+      <button class="back-btn" (click)="goBack()">
+        <span class="material-icons">arrow_back</span>
+      </button>
+      <div class="header-info">
+        <h1 class="page-title">Food & Beverages</h1>
+        <p class="page-subtitle">Enhance your movie experience</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Category Tabs -->
+  <section class="categories-section">
+    <div class="categories-scroll">
+      <button 
+        *ngFor="let category of categories"
+        class="category-tab"
+        [class.active]="selectedCategory === category"
+        (click)="setCategory(category)">
+        {{ category }}
+      </button>
+    </div>
+  </section>
+
+  <!-- Food Items Grid -->
+  <section class="food-section">
+    <div class="food-grid" *ngIf="!isLoading">
+      <div class="food-card" *ngFor="let item of filteredFoodItems">
+        <div class="food-image">
+          <img [src]="item.imageUrl" [alt]="item.name" loading="lazy" />
+          <div class="veg-badge" *ngIf="item.vegetarian">
+            <span class="material-icons">eco</span>
+          </div>
+        </div>
+        
+        <div class="food-info">
+          <h3 class="food-name">{{ item.name }}</h3>
+          <p class="food-description">{{ item.description }}</p>
+          <div class="food-meta">
+            <span class="food-category">{{ item.category }}</span>
+            <span class="food-price">${{ item.price }}</span>
+          </div>
+        </div>
+        
+        <div class="food-actions">
+          <div class="quantity-control" *ngIf="getCartItemQuantity(item.id) > 0">
+            <button class="quantity-btn" (click)="updateQuantity(item.id, -1)">
+              <span class="material-icons">remove</span>
+            </button>
+            <span class="quantity">{{ getCartItemQuantity(item.id) }}</span>
+            <button class="quantity-btn" (click)="updateQuantity(item.id, 1)">
+              <span class="material-icons">add</span>
+            </button>
+          </div>
+          
+          <button class="add-btn" *ngIf="getCartItemQuantity(item.id) === 0" (click)="addToCart(item)">
+            <span class="material-icons">add</span>
+            Add
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="food-grid" *ngIf="isLoading">
+      <app-skeleton-loader type="card" [count]="6"></app-skeleton-loader>
+    </div>
+    
+    <div class="empty-state" *ngIf="!isLoading && filteredFoodItems.length === 0">
+      <span class="material-icons empty-icon">restaurant</span>
+      <h3 class="empty-title">No items found</h3>
+      <p class="empty-message">Try selecting a different category</p>
+    </div>
+  </section>
+</main>
+
+<!-- Bottom Cart Bar -->
+<section class="cart-bar" *ngIf="cart.length > 0">
+  <div class="cart-info">
+    <div class="cart-summary">
+      <span class="cart-count">{{ cart.length }} items</span>
+      <span class="cart-items">{{ cart.map(i => i.foodItem.name).join(', ') }}</span>
+    </div>
+    <div class="cart-total">
+      <span class="total-label">Total</span>
+      <span class="total-amount">${{ cartTotal }}</span>
+    </div>
+  </div>
+  
+  <div class="cart-actions">
+    <button class="skip-btn" (click)="skipFood()">Skip</button>
+    <button class="checkout-btn" (click)="proceedToCheckout()">
+      Proceed
+      <span class="material-icons">arrow_forward</span>
+    </button>
+  </div>
+</section>
+
+<section class="cart-bar-empty" *ngIf="cart.length === 0">
+  <button class="skip-btn-full" (click)="skipFood()">
+    Skip Food & Beverages
+    <span class="material-icons">arrow_forward</span>
+  </button>
+</section>
+
+<app-footer></app-footer>

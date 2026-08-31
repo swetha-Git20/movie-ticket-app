@@ -1,0 +1,67 @@
+<div class="search-overlay" [class.active]="isOpen" (click)="onBackdropClick($event)">
+  <div class="search-container" (click)="$event.stopPropagation()">
+    <div class="search-header">
+      <span class="material-icons search-icon">search</span>
+      <input 
+        type="text" 
+        class="search-input" 
+        placeholder="Search movies, cinemas, actors..." 
+        [(ngModel)]="searchQuery"
+        (input)="onSearch()"
+        (keyup.enter)="onSearch()"
+      />
+      <button class="close-btn" (click)="closeOverlay()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    
+    <div class="search-results" *ngIf="searchQuery">
+      <div class="results-section" *ngIf="results.movies.length > 0">
+        <h3 class="results-title">Movies</h3>
+        <div class="results-list">
+          <div 
+            class="result-item movie-result"
+            *ngFor="let movie of results.movies"
+            (click)="navigateToMovie(movie.id)">
+            <img class="result-thumb" [src]="movie.poster" [alt]="movie.title" />
+            <div class="result-info">
+              <span class="result-name">{{ movie.title }}</span>
+              <span class="result-meta">{{ movie.genre.join(', ') }} • {{ movie.language }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="results-section" *ngIf="results.cinemas.length > 0">
+        <h3 class="results-title">Cinemas</h3>
+        <div class="results-list">
+          <div 
+            class="result-item cinema-result"
+            *ngFor="let cinema of results.cinemas"
+            (click)="navigateToCinema(cinema.id)">
+            <span class="material-icons result-icon">theater_comedy</span>
+            <div class="result-info">
+              <span class="result-name">{{ cinema.name }}</span>
+              <span class="result-meta">{{ cinema.city }} • {{ cinema.address }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="no-results" *ngIf="!isSearching && results.movies.length === 0 && results.cinemas.length === 0">
+        <span class="material-icons no-results-icon">search_off</span>
+        <p>No results found for "{{ searchQuery }}"</p>
+      </div>
+      
+      <div class="loading-results" *ngIf="isSearching">
+        <div class="loading-spinner"></div>
+        <p>Searching...</p>
+      </div>
+    </div>
+    
+    <div class="search-placeholder" *ngIf="!searchQuery">
+      <span class="material-icons placeholder-icon">movie</span>
+      <p>Search for movies, cinemas, actors, or genres</p>
+    </div>
+  </div>
+</div>

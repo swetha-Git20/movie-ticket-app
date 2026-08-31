@@ -1,0 +1,159 @@
+<app-navbar></app-navbar>
+
+<main class="home-page">
+  <!-- Hero Carousel -->
+  <section class="hero-section" *ngIf="!isLoading && featuredMovie">
+    <div class="carousel-container">
+      <div class="carousel-track" [style.transform]="'translateX(-' + currentSlide * 100 + '%)'">
+        <div class="carousel-slide" *ngFor="let movie of carouselMovies">
+          <div class="slide-background" [style.background-image]="'url(' + movie.backdrop + ')'"></div>
+          <div class="slide-overlay"></div>
+          <div class="slide-content">
+            <div class="slide-genres">
+              <span class="genre-tag" *ngFor="let genre of movie.genre.slice(0, 2)">{{ genre }}</span>
+            </div>
+            <h2 class="slide-title">{{ movie.title }}</h2>
+            <button class="slide-cta" (click)="navigateToMovie(movie.id)">
+              <span class="material-icons">confirmation_number</span>
+              Book Tickets
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Carousel Controls -->
+      <button class="carousel-control prev" (click)="prevSlide()" *ngIf="carouselMovies.length > 1">
+        <span class="material-icons">chevron_left</span>
+      </button>
+      <button class="carousel-control next" (click)="nextSlide()" *ngIf="carouselMovies.length > 1">
+        <span class="material-icons">chevron_right</span>
+      </button>
+      
+      <!-- Carousel Indicators -->
+      <div class="carousel-indicators" *ngIf="carouselMovies.length > 1">
+        <button 
+          *ngFor="let movie of carouselMovies; let i = index"
+          class="indicator"
+          [class.active]="i === currentSlide"
+          (click)="goToSlide(i)">
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Loading State -->
+  <section class="hero-section" *ngIf="isLoading">
+    <div class="skeleton-banner"></div>
+  </section>
+
+  <!-- Quick Book Panel -->
+  <section class="quick-book-section">
+    <div class="glass-panel">
+      <h3 class="panel-title">Quick Book</h3>
+      <div class="quick-book-grid">
+        <div class="quick-book-field">
+          <select class="field-select" [(ngModel)]="selectedMovie" (change)="onMovieChange(selectedMovie)">
+            <option value="">Select Movie</option>
+            <option *ngFor="let movie of nowShowingMovies" [value]="movie.id">{{ movie.title }}</option>
+          </select>
+          <span class="field-icon material-icons">expand_more</span>
+        </div>
+        
+        <div class="quick-book-field">
+          <select class="field-select" [(ngModel)]="selectedCity" (change)="onCityChange(selectedCity)" [disabled]="!selectedMovie">
+            <option value="">Select City</option>
+            <option *ngFor="let city of availableCities" [value]="city">{{ city }}</option>
+          </select>
+          <span class="field-icon material-icons">expand_more</span>
+        </div>
+        
+        <div class="quick-book-field">
+          <select class="field-select" [(ngModel)]="selectedCinema" (change)="onCinemaChange(selectedCinema)" [disabled]="!selectedCity">
+            <option value="">Select Cinema</option>
+            <option *ngFor="let cinema of availableCinemas" [value]="cinema">{{ cinema }}</option>
+          </select>
+          <span class="field-icon material-icons">expand_more</span>
+        </div>
+        
+        <div class="quick-book-field">
+          <select class="field-select" [(ngModel)]="selectedDate" (change)="onDateChange(selectedDate)" [disabled]="!selectedCinema">
+            <option value="">Select Date</option>
+            <option *ngFor="let date of availableDates" [value]="date">{{ date }}</option>
+          </select>
+          <span class="field-icon material-icons">expand_more</span>
+        </div>
+      </div>
+      
+      <div class="quick-book-field full-width">
+        <select class="field-select" [(ngModel)]="selectedShowtime" (change)="onShowtimeChange(selectedShowtime)" [disabled]="!selectedDate">
+          <option value="">Select Showtime</option>
+          <option *ngFor="let time of availableShowtimes" [value]="time">{{ time }}</option>
+        </select>
+        <span class="field-icon material-icons">expand_more</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filter Bar -->
+  <section class="filter-section">
+    <div class="filter-scroll">
+      <button 
+        *ngFor="let filter of filters"
+        class="filter-btn"
+        [class.active]="activeFilter === filter"
+        (click)="setFilter(filter)">
+        {{ filter }}
+      </button>
+    </div>
+  </section>
+
+  <!-- Now Showing -->
+  <section class="movies-section">
+    <div class="section-header">
+      <h3 class="section-title">Now Showing</h3>
+      <button class="see-all-btn" (click)="router.navigate(['/movies'])">See All</button>
+    </div>
+    
+    <div class="movies-grid" *ngIf="!isLoading">
+      <app-movie-card 
+        *ngFor="let movie of nowShowingMovies"
+        [movie]="movie"
+        (bookNow)="onBookNow($event)">
+      </app-movie-card>
+    </div>
+    
+    <div class="movies-grid" *ngIf="isLoading">
+      <app-skeleton-loader type="card" [count]="4"></app-skeleton-loader>
+    </div>
+  </section>
+
+  <!-- Coming Soon -->
+  <section class="movies-section">
+    <div class="section-header">
+      <h3 class="section-title">Coming Soon</h3>
+    </div>
+    
+    <div class="movies-grid coming-soon" *ngIf="!isLoading">
+      <div class="coming-soon-card" *ngFor="let movie of comingSoonMovies">
+        <div class="coming-soon-poster">
+          <img [src]="movie.poster" [alt]="movie.title" loading="lazy" />
+          <div class="coming-soon-badge">Coming Soon</div>
+        </div>
+        <div class="coming-soon-info">
+          <h4 class="coming-soon-title">{{ movie.title }}</h4>
+          <p class="coming-soon-date">{{ movie.releaseDate }}</p>
+          <button class="notify-btn" (click)="onNotifyMe(movie)">
+            <span class="material-icons">notifications</span>
+            Notify Me
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="movies-grid" *ngIf="isLoading">
+      <app-skeleton-loader type="card" [count]="3"></app-skeleton-loader>
+    </div>
+  </section>
+</main>
+
+<app-footer></app-footer>

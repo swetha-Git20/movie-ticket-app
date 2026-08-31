@@ -1,0 +1,56 @@
+<app-navbar></app-navbar>
+
+<main class="experiences-page">
+  <section class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">Premium Experiences</h1>
+      <p class="page-subtitle">Discover the ultimate ways to watch movies</p>
+    </div>
+  </section>
+
+  <section class="experiences-section">
+    <div class="experiences-grid">
+      <div class="experience-card" *ngFor="let exp of experiences" [style.border-color]="exp.color">
+        <div class="experience-icon" [style.background-color]="exp.color + '20'">
+          <span class="material-icons" [style.color]="exp.color">{{ exp.icon }}</span>
+        </div>
+        
+        <div class="experience-content">
+          <h3 class="experience-name" [style.color]="exp.color">{{ exp.name }}</h3>
+          <p class="experience-description">{{ exp.description }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="info-section">
+    <div class="info-card">
+      <h2 class="info-title">Why Choose Premium Experiences?</h2>
+      <div class="info-features">
+        <div class="feature-item">
+          <span class="feature-icon material-icons">high_quality</span>
+          <div class="feature-content">
+            <h4 class="feature-title">Superior Picture Quality</h4>
+            <p class="feature-description">Crystal-clear images with vibrant colors and deeper blacks</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon material-icons">volume_up</span>
+          <div class="feature-content">
+            <h4 class="feature-title">Immersive Sound</h4>
+            <p class="feature-description">Multi-dimensional audio that puts you in the center of the action</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon material-icons">event_seat</span>
+          <div class="feature-content">
+            <h4 class="feature-title">Premium Comfort</h4>
+            <p class="feature-description">Luxurious seating with extra legroom and reclining options</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<app-footer></app-footer>

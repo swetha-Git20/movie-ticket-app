@@ -1,0 +1,154 @@
+.cinema-card {
+  display: flex;
+  flex-direction: column;
+  background: #1c1c1f;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.cinema-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(245, 245, 245, 0.2);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+.cinema-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: #2a2a2c;
+  overflow: hidden;
+}
+
+.cinema-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.cinema-card:hover .cinema-image img {
+  transform: scale(1.05);
+}
+
+.rating-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(19, 19, 21, 0.8);
+  backdrop-filter: blur(8px);
+  border-radius: 6px;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 2;
+}
+
+.rating-badge .material-icons {
+  font-size: 12px;
+  color: #ffb3b2;
+}
+
+.rating {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e5e1e4;
+}
+
+.cinema-info {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cinema-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #e5e1e4;
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.cinema-location {
+  font-size: 14px;
+  color: #ffb3b2;
+  font-weight: 500;
+  margin: 0;
+}
+
+.cinema-address {
+  font-size: 12px;
+  color: #c8c6c9;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.cinema-facilities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0;
+}
+
+.facility-tag {
+  font-size: 10px;
+  color: #e5e1e4;
+  background: rgba(53, 52, 55, 0.5);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.facility-tag.more {
+  background: rgba(227, 28, 61, 0.2);
+  color: #ffb3b2;
+}
+
+.showtimes-btn {
+  background: #e31c3d;
+  color: #fffbff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  margin-top: 8px;
+  box-shadow: 0 0 15px rgba(227, 28, 61, 0.3);
+}
+
+.showtimes-btn:hover {
+  box-shadow: 0 0 20px rgba(227, 28, 61, 0.5);
+  transform: scale(1.02);
+}
+
+.showtimes-btn:active {
+  transform: scale(0.98);
+}
+
+.showtimes-btn .material-icons {
+  font-size: 18px;
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+  .cinema-info {
+    padding: 20px;
+  }
+  
+  .cinema-name {
+    font-size: 20px;
+  }
+}
