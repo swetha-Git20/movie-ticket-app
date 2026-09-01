@@ -61,6 +61,8 @@ export class BookingSuccessComponent implements OnInit {
     // Create a simple printable version
     const printWindow = window.open('', '_blank');
     if (printWindow) {
+      const seatsList = this.booking.seats.map(s => s.row + s.number).join(', ');
+      const foodList = this.booking.foodItems.map(f => f.name + ' x' + f.quantity).join(', ');
       const ticketContent = `
         <html>
         <head>
@@ -84,7 +86,8 @@ export class BookingSuccessComponent implements OnInit {
               <div class="detail-row"><span>Cinema:</span><span>${this.booking.cinemaName}</span></div>
               <div class="detail-row"><span>Date:</span><span>${this.booking.date}</span></div>
               <div class="detail-row"><span>Time:</span><span>${this.booking.time}</span></div>
-              <div class="detail-row"><span>Seats:</span><span>${this.booking.seats.map(s => s.row + s.number).join(', ')}</span></div>
+              <div class="detail-row"><span>Seats:</span><span>${seatsList}</span></div>
+              <div class="detail-row"><span>Food:</span><span>${foodList}</span></div>
               <div class="detail-row"><span>Total:</span><span>$${this.booking.total}</span></div>
             </div>
             <div class="qr-code">QR Code</div>
@@ -97,5 +100,13 @@ export class BookingSuccessComponent implements OnInit {
       printWindow.document.close();
       printWindow.print();
     }
+  }
+
+  getSeatsList(): string {
+    return this.booking?.seats.map(s => s.row + s.number).join(', ') || '';
+  }
+
+  getFoodList(): string {
+    return this.booking?.foodItems.map(f => f.name + ' x' + f.quantity).join(', ') || '';
   }
 }

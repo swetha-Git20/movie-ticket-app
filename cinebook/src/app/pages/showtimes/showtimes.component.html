@@ -46,8 +46,8 @@
       <span class="results-count">{{ showtimes.length }} showtimes found</span>
     </div>
     
-    <div class="showtimes-list" *ngIf="!isLoading && Object.keys(groupedShowtimes).length > 0">
-      <div class="cinema-group" *ngFor="let cinemaId of Object.keys(groupedShowtimes)">
+    <div class="showtimes-list" *ngIf="!isLoading && getObjectKeys(groupedShowtimes).length > 0">
+      <div class="cinema-group" *ngFor="let cinemaId of getObjectKeys(groupedShowtimes)">
         <div class="cinema-header">
           <div class="cinema-info">
             <h3 class="cinema-name">{{ getCinemaName(cinemaId) }}</h3>
@@ -81,7 +81,7 @@
       </div>
     </div>
     
-    <div class="empty-state" *ngIf="!isLoading && Object.keys(groupedShowtimes).length === 0">
+    <div class="empty-state" *ngIf="!isLoading && getObjectKeys(groupedShowtimes).length === 0">
       <span class="material-icons empty-icon">schedule</span>
       <h3 class="empty-title">No showtimes available</h3>
       <p class="empty-message">Try adjusting your filters or selecting a different date</p>

@@ -4,7 +4,6 @@ import { OfferService } from '../../services/offer.service';
 import { Offer } from '../../models/offer.model';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
-import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skeleton-loader.component';
 
 @Component({
   selector: 'app-offers',
@@ -12,8 +11,7 @@ import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skelet
   imports: [
     CommonModule,
     NavbarComponent,
-    FooterComponent,
-    SkeletonLoaderComponent
+    FooterComponent
   ],
   templateUrl: './offers.component.html',
   styleUrls: ['./offers.component.css']

@@ -63,7 +63,8 @@
     </div>
     
     <div class="cinemas-grid" *ngIf="isLoading">
-      <app-skeleton-loader type="card" [count]="6"></app-skeleton-loader>
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Loading cinemas...</p>
     </div>
   </section>
 </main>

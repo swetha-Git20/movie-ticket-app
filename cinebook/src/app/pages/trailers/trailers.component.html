@@ -29,7 +29,8 @@
     </div>
     
     <div class="trailers-grid" *ngIf="isLoading">
-      <app-skeleton-loader type="card" [count]="6"></app-skeleton-loader>
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Loading trailers...</p>
     </div>
     
     <div class="empty-state" *ngIf="!isLoading && movies.length === 0">
@@ -41,11 +42,11 @@
 </main>
 
 <!-- Trailer Modal -->
-<app-modal [isOpen]="showTrailerModal" [title]="selectedTrailer?.title" (close)="closeTrailer()">
+<app-modal [isOpen]="showTrailerModal" [title]="selectedTrailer?.title || 'Trailer'" (close)="closeTrailer()">
   <div class="trailer-container">
     <iframe 
       *ngIf="selectedTrailer?.trailerUrl"
-      [src]="selectedTrailer.trailerUrl"
+      [src]="selectedTrailer?.trailerUrl || ''"
       frameborder="0"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
       allowfullscreen>

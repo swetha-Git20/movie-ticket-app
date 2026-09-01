@@ -4,8 +4,8 @@ import { authGuard } from './guards/auth.guard';
 export const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: 'home', loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent) },
+  { path: 'movies', loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent) },
   { path: 'movies/:id', loadComponent: () => import('./pages/movie-details/movie-details.component').then(m => m.MovieDetailsComponent) },
-  { path: 'movies', redirectTo: '/home', pathMatch: 'full' },
   { path: 'cinemas', loadComponent: () => import('./pages/cinemas/cinemas.component').then(m => m.CinemasComponent) },
   { path: 'showtimes', loadComponent: () => import('./pages/showtimes/showtimes.component').then(m => m.ShowtimesComponent) },
   { path: 'seat-selection', loadComponent: () => import('./pages/seat-selection/seat-selection.component').then(m => m.SeatSelectionComponent) },

@@ -66,7 +66,7 @@
             </div>
             <div class="detail-item">
               <span class="detail-icon material-icons">event_seat</span>
-              <span class="detail-text">{{ booking.seats.map(s => s.row + s.number).join(', ') }}</span>
+              <span class="detail-text">{{ getSeatsList(booking.seats) }}</span>
             </div>
             <div class="detail-item">
               <span class="detail-icon material-icons">payments</span>

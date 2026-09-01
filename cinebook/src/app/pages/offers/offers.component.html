@@ -51,7 +51,8 @@
     </div>
     
     <div class="offers-grid" *ngIf="isLoading">
-      <app-skeleton-loader type="card" [count]="4"></app-skeleton-loader>
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Loading offers...</p>
     </div>
   </section>
 </main>

@@ -40,11 +40,11 @@
           </div>
           <div class="detail-row">
             <span class="detail-label">Seats</span>
-            <span class="detail-value">{{ booking.seats.map(s => s.row + s.number).join(', ') }}</span>
+            <span class="detail-value">{{ getSeatsList() }}</span>
           </div>
           <div class="detail-row" *ngIf="booking.foodItems.length > 0">
             <span class="detail-label">Food</span>
-            <span class="detail-value">{{ booking.foodItems.map(f => f.name + ' x' + f.quantity).join(', ') }}</span>
+            <span class="detail-value">{{ getFoodList() }}</span>
           </div>
         </div>
         

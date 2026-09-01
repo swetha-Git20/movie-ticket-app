@@ -36,7 +36,7 @@ export class MyBookingsComponent implements OnInit {
   constructor(
     private bookingService: BookingService,
     private authService: AuthService,
-    private router: Router
+    public router: Router
   ) {}
 
   ngOnInit(): void {
@@ -138,5 +138,9 @@ export class MyBookingsComponent implements OnInit {
       day: 'numeric',
       year: 'numeric'
     });
+  }
+
+  getSeatsList(seats: any[]): string {
+    return seats.map(s => s.row + s.number).join(', ');
   }
 }

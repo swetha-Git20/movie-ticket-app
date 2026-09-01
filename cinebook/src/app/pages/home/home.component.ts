@@ -7,7 +7,6 @@ import { Movie } from '../../models/movie.model';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { MovieCardComponent } from '../../components/movie-card/movie-card.component';
-import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skeleton-loader.component';
 
 @Component({
   selector: 'app-home',
@@ -17,8 +16,7 @@ import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skelet
     FormsModule,
     NavbarComponent,
     FooterComponent,
-    MovieCardComponent,
-    SkeletonLoaderComponent
+    MovieCardComponent
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
@@ -46,7 +44,7 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private movieService: MovieService,
-    private router: Router
+    public router: Router
   ) {}
 
   ngOnInit(): void {

@@ -44,7 +44,7 @@ export class LoginComponent {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.authService.login({ email: this.email, password }).subscribe(result => {
+    this.authService.login({ email: this.email, password: this.password }).subscribe(result => {
       this.isLoading = false;
       if (result.success) {
         const redirectUrl = this.route.snapshot.queryParamMap.get('redirect') || '/';

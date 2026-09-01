@@ -67,7 +67,8 @@
     </div>
     
     <div class="food-grid" *ngIf="isLoading">
-      <app-skeleton-loader type="card" [count]="6"></app-skeleton-loader>
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Loading menu...</p>
     </div>
     
     <div class="empty-state" *ngIf="!isLoading && filteredFoodItems.length === 0">
@@ -83,7 +84,7 @@
   <div class="cart-info">
     <div class="cart-summary">
       <span class="cart-count">{{ cart.length }} items</span>
-      <span class="cart-items">{{ cart.map(i => i.foodItem.name).join(', ') }}</span>
+      <span class="cart-items">{{ getCartItemsList() }}</span>
     </div>
     <div class="cart-total">
       <span class="total-label">Total</span>

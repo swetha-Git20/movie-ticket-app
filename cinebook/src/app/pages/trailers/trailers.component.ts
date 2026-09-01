@@ -5,7 +5,6 @@ import { Movie } from '../../models/movie.model';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { ModalComponent } from '../../components/modal/modal.component';
-import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skeleton-loader.component';
 
 @Component({
   selector: 'app-trailers',
@@ -14,8 +13,7 @@ import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skelet
     CommonModule,
     NavbarComponent,
     FooterComponent,
-    ModalComponent,
-    SkeletonLoaderComponent
+    ModalComponent
   ],
   templateUrl: './trailers.component.html',
   styleUrls: ['./trailers.component.css']

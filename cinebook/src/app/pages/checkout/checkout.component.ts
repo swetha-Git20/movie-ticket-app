@@ -34,7 +34,7 @@ import { ModalComponent } from '../../components/modal/modal.component';
 export class CheckoutComponent implements OnInit {
   selectedSeats: any[] = [];
   foodCart: CartItem[] = [];
-  showtime: Showtime | null = null;
+  showtime: Showtime | null | undefined = null;
   movie: Movie | null = null;
   cinema: Cinema | null = null;
   currentUser: User | null = null;
@@ -229,5 +229,9 @@ export class CheckoutComponent implements OnInit {
       case 'netbanking': return 'Net Banking';
       default: return method;
     }
+  }
+
+  getSelectedSeatsList(): string {
+    return this.selectedSeats.map(s => s.row + s.number).join(', ');
   }
 }

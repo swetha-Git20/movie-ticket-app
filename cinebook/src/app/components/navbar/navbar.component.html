@@ -30,7 +30,7 @@
     </div>
     
     <nav class="nav-links">
-      <a class="nav-link" (click)="navigateTo('/')" [class.active]="router.url === '/'">
+      <a class="nav-link" (click)="navigateTo('/home')" [class.active]="router.url === '/home'">
         <span class="material-icons">home</span>
         Home
       </a>
@@ -93,3 +93,9 @@
 
 <!-- Overlay -->
 <div class="nav-overlay" [class.active]="isMenuOpen" (click)="closeMenu()"></div>
+
+<!-- Search Overlay -->
+<app-search-overlay (close)="closeMenu()"></app-search-overlay>
+
+<!-- Location Selector -->
+<app-location-selector (close)="closeMenu()"></app-location-selector>

@@ -12,7 +12,6 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { MovieCardComponent } from '../../components/movie-card/movie-card.component';
 import { ModalComponent } from '../../components/modal/modal.component';
-import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skeleton-loader.component';
 
 @Component({
   selector: 'app-movie-details',
@@ -23,8 +22,7 @@ import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skelet
     NavbarComponent,
     FooterComponent,
     MovieCardComponent,
-    ModalComponent,
-    SkeletonLoaderComponent
+    ModalComponent
   ],
   templateUrl: './movie-details.component.html',
   styleUrls: ['./movie-details.component.css']
@@ -49,7 +47,7 @@ export class MovieDetailsComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
+    public router: Router,
     private movieService: MovieService,
     private showtimeService: ShowtimeService,
     private cinemaService: CinemaService

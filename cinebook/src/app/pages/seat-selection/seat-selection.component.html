@@ -80,7 +80,7 @@
       <div class="selected-seats-info">
         <span class="seats-count">{{ selectedSeats.length }}/{{ maxSeats }} seats</span>
         <span class="selected-seats-list" *ngIf="selectedSeats.length > 0">
-          {{ selectedSeats.map(s => s.row + s.number).join(', ') }}
+          {{ getSelectedSeatsList() }}
         </span>
       </div>
       <div class="total-price">

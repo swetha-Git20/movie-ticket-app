@@ -11,7 +11,6 @@ import { Movie } from '../../models/movie.model';
 import { Cinema } from '../../models/cinema.model';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
-import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skeleton-loader.component';
 
 @Component({
   selector: 'app-seat-selection',
@@ -19,8 +18,7 @@ import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skelet
   imports: [
     CommonModule,
     NavbarComponent,
-    FooterComponent,
-    SkeletonLoaderComponent
+    FooterComponent
   ],
   templateUrl: './seat-selection.component.html',
   styleUrls: ['./seat-selection.component.css']
@@ -142,5 +140,9 @@ export class SeatSelectionComponent implements OnInit {
       case 'premium': return 'Premium';
       default: return 'Standard';
     }
+  }
+
+  getSelectedSeatsList(): string {
+    return this.selectedSeats.map(s => s.row + s.number).join(', ');
   }
 }

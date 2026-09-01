@@ -224,13 +224,13 @@ export class MovieService {
     let filtered = this.movies.filter(m => !m.isComingSoon);
     
     if (filters.genre) {
-      filtered = filtered.filter(m => m.genre.includes(filters.genre));
+      filtered = filtered.filter(m => m.genre.includes(filters.genre!));
     }
     if (filters.language) {
-      filtered = filtered.filter(m => m.language === filters.language);
+      filtered = filtered.filter(m => m.language === filters.language!);
     }
     if (filters.format) {
-      filtered = filtered.filter(m => m.format.includes(filters.format));
+      filtered = filtered.filter(m => m.format.includes(filters.format!));
     }
     
     return of(filtered).pipe(delay(200));

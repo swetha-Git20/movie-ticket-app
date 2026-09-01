@@ -10,7 +10,6 @@ import { Movie } from '../../models/movie.model';
 import { Cinema } from '../../models/cinema.model';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
-import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skeleton-loader.component';
 
 @Component({
   selector: 'app-showtimes',
@@ -19,8 +18,7 @@ import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skelet
     CommonModule,
     FormsModule,
     NavbarComponent,
-    FooterComponent,
-    SkeletonLoaderComponent
+    FooterComponent
   ],
   templateUrl: './showtimes.component.html',
   styleUrls: ['./showtimes.component.css']
@@ -43,7 +41,7 @@ export class ShowtimesComponent implements OnInit {
     private showtimeService: ShowtimeService,
     private movieService: MovieService,
     private cinemaService: CinemaService,
-    private router: Router,
+    public router: Router,
     private route: ActivatedRoute
   ) {}
 
@@ -131,8 +129,12 @@ export class ShowtimesComponent implements OnInit {
       if (!this.groupedShowtimes[showtime.cinemaId]) {
         this.groupedShowtimes[showtime.cinemaId] = [];
       }
-      this.groupedShowtimes[showtime.cinemaId].push(showtime);
+      this.groupedShowtimes[showtime.cinemaId]!.push(showtime);
     });
+  }
+
+  getObjectKeys(obj: any): string[] {
+    return Object.keys(obj);
   }
 
   selectShowtime(showtime: Showtime): void {

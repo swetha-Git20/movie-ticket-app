@@ -6,7 +6,6 @@ import { BookingService } from '../../services/booking.service';
 import { FoodItem, CartItem } from '../../models/food.model';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
-import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skeleton-loader.component';
 
 @Component({
   selector: 'app-food',
@@ -14,8 +13,7 @@ import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skelet
   imports: [
     CommonModule,
     NavbarComponent,
-    FooterComponent,
-    SkeletonLoaderComponent
+    FooterComponent
   ],
   templateUrl: './food.component.html',
   styleUrls: ['./food.component.css']
@@ -107,5 +105,9 @@ export class FoodComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/seat-selection']);
+  }
+
+  getCartItemsList(): string {
+    return this.cart.map(i => i.foodItem.name).join(', ');
   }
 }

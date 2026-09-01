@@ -7,7 +7,6 @@ import { Cinema } from '../../models/cinema.model';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { CinemaCardComponent } from '../../components/cinema-card/cinema-card.component';
-import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skeleton-loader.component';
 
 @Component({
   selector: 'app-cinemas',
@@ -17,8 +16,7 @@ import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skelet
     FormsModule,
     NavbarComponent,
     FooterComponent,
-    CinemaCardComponent,
-    SkeletonLoaderComponent
+    CinemaCardComponent
   ],
   templateUrl: './cinemas.component.html',
   styleUrls: ['./cinemas.component.css']
