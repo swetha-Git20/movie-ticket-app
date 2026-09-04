@@ -1,110 +1,120 @@
 <app-navbar></app-navbar>
 
-<main class="seat-selection-page" *ngIf="!isLoading">
-  <!-- Header -->
+<main class="seat-selection-page">
+  <!-- Booking Stepper Bar -->
+  <section class="booking-flow-stepper">
+    <div class="stepper-container">
+      <div class="step-pill done">
+        <span class="step-num material-icons">check</span>
+        <span>1. Theatre: {{ cinema?.name }}</span>
+      </div>
+      <span class="step-arrow">→</span>
+      <div class="step-pill done">
+        <span class="step-num material-icons">check</span>
+        <span>2. {{ formatDate(showtime?.date) }} ({{ showtime?.time }})</span>
+      </div>
+      <span class="step-arrow">→</span>
+      <div class="step-pill active">
+        <span class="step-num">3</span>
+        <span>3. Select Seats</span>
+      </div>
+      <span class="step-arrow">→</span>
+      <div class="step-pill">
+        <span class="step-num">4</span>
+        <span>4. Add Food & Snacks</span>
+      </div>
+      <span class="step-arrow">→</span>
+      <div class="step-pill">
+        <span class="step-num">5</span>
+        <span>5. Payment & Ticket</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Header Info -->
   <section class="page-header">
     <div class="header-content">
       <button class="back-btn" (click)="goBack()">
         <span class="material-icons">arrow_back</span>
       </button>
-      <div class="movie-info">
-        <h1 class="movie-title" *ngIf="movie">{{ movie.title }}</h1>
-        <div class="showtime-info" *ngIf="cinema && showtime">
-          <span class="cinema-name">{{ cinema.name }}</span>
-          <span class="separator">•</span>
-          <span class="showtime-date">{{ showtime.date }}</span>
-          <span class="separator">•</span>
-          <span class="showtime-time">{{ showtime.time }}</span>
+      
+      <div class="movie-info" *ngIf="movie && showtime && cinema">
+        <h1 class="movie-title">{{ movie.title }}</h1>
+        <p class="showtime-details">
+          {{ cinema.name }} • {{ formatDate(showtime.date) }} • {{ showtime.time }} • {{ showtime.format }} ({{ cinema.city }})
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cinema Screen Indicator -->
+  <section class="screen-section">
+    <div class="screen-curve"></div>
+    <p class="screen-label">SCREEN THIS WAY</p>
+  </section>
+
+  <!-- Seat Map Grid -->
+  <section class="seating-section">
+    <div class="seat-map" *ngIf="!isLoading">
+      <div class="seat-grid">
+        <div 
+          *ngFor="let seat of seats"
+          class="seat"
+          [ngClass]="[
+            seat.type,
+            seat.status,
+            isSeatSelected(seat) ? 'selected' : ''
+          ]"
+          (click)="toggleSeat(seat)"
+          [title]="seat.row + seat.number + ' - ' + getSeatTypeLabel(seat.type) + ' (₹' + seat.price + ')'">
+          <span class="seat-label">{{ seat.row }}{{ seat.number }}</span>
         </div>
       </div>
     </div>
-  </section>
 
-  <!-- Screen -->
-  <section class="screen-section">
-    <div class="screen-container">
-      <div class="screen"></div>
-      <p class="screen-label">SCREEN</p>
-    </div>
-  </section>
-
-  <!-- Seat Grid -->
-  <section class="seat-grid-section">
-    <div class="seat-grid">
-      <div 
-        *ngFor="let seat of seats"
-        class="seat"
-        [class.available]="seat.status === 'available'"
-        [class.selected]="isSeatSelected(seat)"
-        [class.occupied]="seat.status === 'occupied'"
-        [class.vip]="seat.type === 'vip'"
-        [class.premium]="seat.type === 'premium'"
-        [class.standard]="seat.type === 'standard'"
-        (click)="toggleSeat(seat)">
-        <span class="seat-label">{{ seat.row }}{{ seat.number }}</span>
+    <!-- Seat Legend with ₹ Pricing -->
+    <div class="seat-legend">
+      <div class="legend-item">
+        <div class="seat-sample available standard"></div>
+        <span class="legend-label">Standard (₹150)</span>
+      </div>
+      <div class="legend-item">
+        <div class="seat-sample available premium"></div>
+        <span class="legend-label">Premium (₹220)</span>
+      </div>
+      <div class="legend-item">
+        <div class="seat-sample available vip"></div>
+        <span class="legend-label">VIP Recliner (₹280)</span>
+      </div>
+      <div class="legend-item">
+        <div class="seat-sample selected"></div>
+        <span class="legend-label">Selected</span>
+      </div>
+      <div class="legend-item">
+        <div class="seat-sample occupied"></div>
+        <span class="legend-label">Occupied</span>
       </div>
     </div>
-  </section>
-
-  <!-- Legend -->
-  <section class="legend-section">
-    <div class="legend-item">
-      <div class="legend-seat available"></div>
-      <span class="legend-label">Available</span>
-    </div>
-    <div class="legend-item">
-      <div class="legend-seat selected"></div>
-      <span class="legend-label">Selected</span>
-    </div>
-    <div class="legend-item">
-      <div class="legend-seat occupied"></div>
-      <span class="legend-label">Occupied</span>
-    </div>
-    <div class="legend-item">
-      <div class="legend-seat vip"></div>
-      <span class="legend-label">VIP ($18)</span>
-    </div>
-    <div class="legend-item">
-      <div class="legend-seat premium"></div>
-      <span class="legend-label">Premium ($14)</span>
-    </div>
-    <div class="legend-item">
-      <div class="legend-seat standard"></div>
-      <span class="legend-label">Standard ($10)</span>
-    </div>
-  </section>
-
-  <!-- Bottom Sheet -->
-  <section class="bottom-sheet">
-    <div class="selection-summary">
-      <div class="selected-seats-info">
-        <span class="seats-count">{{ selectedSeats.length }}/{{ maxSeats }} seats</span>
-        <span class="selected-seats-list" *ngIf="selectedSeats.length > 0">
-          {{ getSelectedSeatsList() }}
-        </span>
-      </div>
-      <div class="total-price">
-        <span class="price-label">Total</span>
-        <span class="price-amount">${{ totalPrice }}</span>
-      </div>
-    </div>
-    
-    <button 
-      class="proceed-btn"
-      [disabled]="selectedSeats.length === 0"
-      (click)="proceedToFood()">
-      Proceed to Food
-      <span class="material-icons">arrow_forward</span>
-    </button>
   </section>
 </main>
 
-<!-- Loading State -->
-<main class="seat-selection-page" *ngIf="isLoading">
-  <div class="loading-container">
-    <div class="loading-spinner"></div>
-    <p>Loading seat layout...</p>
+<!-- Bottom Summary Bar with ₹ Pricing -->
+<section class="booking-bar" *ngIf="selectedSeats.length > 0">
+  <div class="booking-summary">
+    <div class="selected-seats-info">
+      <span class="seats-label">Seats ({{ selectedSeats.length }}/{{ maxSeats }}):</span>
+      <span class="seats-list">{{ getSelectedSeatsList() }}</span>
+    </div>
+    <div class="total-price-info">
+      <span class="price-label">Tickets Subtotal:</span>
+      <span class="price-amount">₹{{ totalPrice }}</span>
+    </div>
   </div>
-</main>
+  
+  <button class="proceed-btn" (click)="proceedToFood()">
+    <span>Next: Food & Snacks</span>
+    <span class="material-icons">arrow_forward</span>
+  </button>
+</section>
 
 <app-footer></app-footer>

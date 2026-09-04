@@ -1,4 +1,4 @@
-# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+# See http://help.github.com/ignore-files/ for more about ignoring files.
 
 # Compiled output
 /dist
@@ -19,6 +19,11 @@ yarn-error.log
 *.launch
 .settings/
 *.sublime-workspace
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 
 # Visual Studio Code
 .vscode/*
@@ -26,18 +31,51 @@ yarn-error.log
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-.history/*
 
-# Miscellaneous
-/.angular/cache
+# Angular
+.angular/cache/
+.schematics/
+
+# Misc
+/.angular/
 .sass-cache/
 /connect.lock
-/coverage
-/libpeerconnection.log
-testem.log
-/typings
-__screenshots__/
+/lib/
+/librarian
+/peerjs-node
+/peerjs-server
+/bower_components
+/test/
+tmp
+temp
 
-# System files
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS
 .DS_Store
 Thumbs.db
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Testing
+/coverage
+/.nyc_output
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

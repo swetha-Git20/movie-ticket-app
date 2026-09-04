@@ -1,15 +1,41 @@
 <app-navbar></app-navbar>
 
 <main class="food-page">
+  <!-- Booking Stepper Bar -->
+  <section class="booking-flow-stepper">
+    <div class="stepper-container">
+      <div class="step-pill done">
+        <span class="step-num material-icons">check</span>
+        <span>1. {{ cinema?.name }}</span>
+      </div>
+      <span class="step-arrow">→</span>
+      <div class="step-pill done">
+        <span class="step-num material-icons">check</span>
+        <span>2. Seats: {{ getSeatsList() }}</span>
+      </div>
+      <span class="step-arrow">→</span>
+      <div class="step-pill active">
+        <span class="step-num">3</span>
+        <span>3. Add Food & Beverages</span>
+      </div>
+      <span class="step-arrow">→</span>
+      <div class="step-pill">
+        <span class="step-num">4</span>
+        <span>4. Payment & Ticket</span>
+      </div>
+    </div>
+  </section>
+
   <!-- Header -->
   <section class="page-header">
     <div class="header-content">
       <button class="back-btn" (click)="goBack()">
         <span class="material-icons">arrow_back</span>
+        Back to Seats
       </button>
       <div class="header-info">
-        <h1 class="page-title">Food & Beverages</h1>
-        <p class="page-subtitle">Enhance your movie experience</p>
+        <h1 class="page-title">Cinema Snacks & Refreshments</h1>
+        <p class="page-subtitle">Pre-order popcorn, hot snacks, combos & drinks and have them served right at your seat</p>
       </div>
     </div>
   </section>
@@ -31,19 +57,26 @@
   <section class="food-section">
     <div class="food-grid" *ngIf="!isLoading">
       <div class="food-card" *ngFor="let item of filteredFoodItems">
-        <div class="food-image">
-          <img [src]="item.imageUrl" [alt]="item.name" loading="lazy" />
-          <div class="veg-badge" *ngIf="item.vegetarian">
-            <span class="material-icons">eco</span>
+        <div class="food-image-container">
+          <img [src]="item.imageUrl" [alt]="item.name" loading="lazy" class="food-img" />
+          <div class="veg-badge" *ngIf="item.vegetarian" title="100% Pure Vegetarian">
+            <span class="dot veg-dot"></span>
+            <span class="badge-text">VEG</span>
+          </div>
+          <div class="non-veg-badge" *ngIf="!item.vegetarian" title="Non-Vegetarian">
+            <span class="dot non-veg-dot"></span>
+            <span class="badge-text">NON-VEG</span>
           </div>
         </div>
         
         <div class="food-info">
-          <h3 class="food-name">{{ item.name }}</h3>
+          <div class="food-header-row">
+            <h3 class="food-name">{{ item.name }}</h3>
+            <span class="food-price">₹{{ item.price }}</span>
+          </div>
           <p class="food-description">{{ item.description }}</p>
           <div class="food-meta">
-            <span class="food-category">{{ item.category }}</span>
-            <span class="food-price">${{ item.price }}</span>
+            <span class="category-chip">{{ item.category }}</span>
           </div>
         </div>
         
@@ -52,60 +85,60 @@
             <button class="quantity-btn" (click)="updateQuantity(item.id, -1)">
               <span class="material-icons">remove</span>
             </button>
-            <span class="quantity">{{ getCartItemQuantity(item.id) }}</span>
+            <span class="quantity-count">{{ getCartItemQuantity(item.id) }}</span>
             <button class="quantity-btn" (click)="updateQuantity(item.id, 1)">
               <span class="material-icons">add</span>
             </button>
           </div>
           
           <button class="add-btn" *ngIf="getCartItemQuantity(item.id) === 0" (click)="addToCart(item)">
-            <span class="material-icons">add</span>
-            Add
+            <span class="material-icons">add_shopping_cart</span>
+            Add • ₹{{ item.price }}
           </button>
         </div>
       </div>
     </div>
     
-    <div class="food-grid" *ngIf="isLoading">
+    <div class="loading-state" *ngIf="isLoading">
       <div class="loading-spinner"></div>
-      <p class="loading-text">Loading menu...</p>
-    </div>
-    
-    <div class="empty-state" *ngIf="!isLoading && filteredFoodItems.length === 0">
-      <span class="material-icons empty-icon">restaurant</span>
-      <h3 class="empty-title">No items found</h3>
-      <p class="empty-message">Try selecting a different category</p>
+      <p class="loading-text">Loading delicious menu items...</p>
     </div>
   </section>
 </main>
 
-<!-- Bottom Cart Bar -->
+<!-- Bottom Sticky Food Cart Bar -->
 <section class="cart-bar" *ngIf="cart.length > 0">
-  <div class="cart-info">
-    <div class="cart-summary">
-      <span class="cart-count">{{ cart.length }} items</span>
-      <span class="cart-items">{{ getCartItemsList() }}</span>
+  <div class="cart-bar-container">
+    <div class="cart-info">
+      <div class="cart-summary">
+        <span class="cart-count">{{ cart.length }} Snack Item{{ cart.length > 1 ? 's' : '' }}</span>
+        <span class="cart-items">{{ getCartItemsList() }}</span>
+      </div>
+      <div class="cart-total">
+        <span class="total-label">Food Total:</span>
+        <span class="total-amount">₹{{ cartTotal }}</span>
+      </div>
     </div>
-    <div class="cart-total">
-      <span class="total-label">Total</span>
-      <span class="total-amount">${{ cartTotal }}</span>
+    
+    <div class="cart-actions">
+      <button class="skip-btn" (click)="skipFood()">Skip Snacks</button>
+      <button class="checkout-btn" (click)="proceedToCheckout()">
+        <span>Proceed to Payment</span>
+        <span class="material-icons">arrow_forward</span>
+      </button>
     </div>
-  </div>
-  
-  <div class="cart-actions">
-    <button class="skip-btn" (click)="skipFood()">Skip</button>
-    <button class="checkout-btn" (click)="proceedToCheckout()">
-      Proceed
-      <span class="material-icons">arrow_forward</span>
-    </button>
   </div>
 </section>
 
+<!-- If no snacks selected, show easy full skip bar -->
 <section class="cart-bar-empty" *ngIf="cart.length === 0">
-  <button class="skip-btn-full" (click)="skipFood()">
-    Skip Food & Beverages
-    <span class="material-icons">arrow_forward</span>
-  </button>
+  <div class="empty-bar-container">
+    <span class="no-food-hint">No food items added yet? You can skip or select items above.</span>
+    <button class="skip-btn-full" (click)="skipFood()">
+      <span>Skip & Continue to Payment</span>
+      <span class="material-icons">arrow_forward</span>
+    </button>
+  </div>
 </section>
 
 <app-footer></app-footer>

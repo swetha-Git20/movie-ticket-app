@@ -3,7 +3,14 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FoodService } from '../../services/food.service';
 import { BookingService } from '../../services/booking.service';
+import { ShowtimeService } from '../../services/showtime.service';
+import { MovieService } from '../../services/movie.service';
+import { CinemaService } from '../../services/cinema.service';
 import { FoodItem, CartItem } from '../../models/food.model';
+import { Seat } from '../../models/seat.model';
+import { Showtime } from '../../models/showtime.model';
+import { Movie } from '../../models/movie.model';
+import { Cinema } from '../../models/cinema.model';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 
@@ -25,14 +32,39 @@ export class FoodComponent implements OnInit {
   selectedCategory = 'All';
   isLoading = true;
   cartTotal = 0;
+  
+  selectedSeats: Seat[] = [];
+  showtime: Showtime | null = null;
+  movie: Movie | null = null;
+  cinema: Cinema | null = null;
 
   constructor(
     private foodService: FoodService,
     private bookingService: BookingService,
+    private showtimeService: ShowtimeService,
+    private movieService: MovieService,
+    private cinemaService: CinemaService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
+    this.selectedSeats = this.bookingService.getSelectedSeatsValue();
+    if (this.selectedSeats.length === 0) {
+      this.router.navigate(['/showtimes']);
+      return;
+    }
+
+    const showtimeId = this.bookingService.getCurrentShowtimeValue();
+    if (showtimeId) {
+      this.showtimeService.getShowtimeById(showtimeId).subscribe(st => {
+        this.showtime = st || null;
+        if (st) {
+          this.movieService.getMovieById(st.movieId).subscribe(m => this.movie = m || null);
+          this.cinemaService.getCinemaById(st.cinemaId).subscribe(c => this.cinema = c || null);
+        }
+      });
+    }
+
     this.loadFoodItems();
     this.loadCart();
   }
@@ -100,14 +132,25 @@ export class FoodComponent implements OnInit {
   }
 
   skipFood(): void {
+    this.foodService.clearCart();
     this.router.navigate(['/checkout']);
   }
 
   goBack(): void {
-    this.router.navigate(['/seat-selection']);
+    if (this.showtime) {
+      this.router.navigate(['/seat-selection'], {
+        queryParams: { showtime: this.showtime.id }
+      });
+    } else {
+      this.router.navigate(['/showtimes']);
+    }
   }
 
   getCartItemsList(): string {
-    return this.cart.map(i => i.foodItem.name).join(', ');
+    return this.cart.map(i => `${i.foodItem.name} (x${i.quantity})`).join(', ');
+  }
+
+  getSeatsList(): string {
+    return this.selectedSeats.map(s => s.row + s.number).join(', ');
   }
 }

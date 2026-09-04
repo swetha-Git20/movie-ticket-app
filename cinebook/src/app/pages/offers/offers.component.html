@@ -32,12 +32,12 @@
             <div class="detail-item">
               <span class="detail-label">Discount</span>
               <span class="detail-value">
-                {{ offer.discountType === 'percentage' ? offer.discountValue + '%' : '$' + offer.discountValue }}
+                {{ offer.discountType === 'percentage' ? offer.discountValue + '%' : '₹' + offer.discountValue }}
               </span>
             </div>
             <div class="detail-item">
               <span class="detail-label">Min. Booking</span>
-              <span class="detail-value">${{ offer.minBookingAmount }}</span>
+              <span class="detail-value">₹{{ offer.minBookingAmount }}</span>
             </div>
             <div class="detail-item">
               <span class="detail-label">Valid Until</span>

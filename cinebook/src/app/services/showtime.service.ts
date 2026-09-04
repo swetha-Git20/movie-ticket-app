@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of, delay } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { delay } from 'rxjs/operators';
 import { Showtime } from '../models/showtime.model';
 
 @Injectable({
@@ -7,62 +8,87 @@ import { Showtime } from '../models/showtime.model';
 })
 export class ShowtimeService {
   private showtimes: Showtime[] = [];
-  private showtimesSubject = new BehaviorSubject<Showtime[]>(this.showtimes);
+  private showtimesSubject = new BehaviorSubject<Showtime[]>([]);
+
+  private standardTimings = [
+    { time: '10:00 AM', format: '2D', price: 150 },
+    { time: '1:30 PM', format: 'Dolby Atmos', price: 180 },
+    { time: '4:30 PM', format: 'IMAX 3D', price: 250 },
+    { time: '7:30 PM', format: '4DX', price: 280 },
+    { time: '10:30 PM', format: 'Dolby Atmos', price: 180 }
+  ];
 
   constructor() {
-    this.generateMockShowtimes();
-    this.loadFromLocalStorage();
+    this.generateShowtimes();
   }
 
-  private generateMockShowtimes(): void {
-    const times = ['10:00', '13:00', '16:00', '19:00', '22:00'];
-    const formats = ['2D', 'IMAX', '4DX', '3D'];
-    const movieIds = ['1', '2', '3', '4', '5', '6', '7', '8'];
-    const cinemaIds = ['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10'];
-    
+  private generateShowtimes(): void {
+    const movieIds = [
+      'tm-1', 'tm-2', 'tm-3', 'tm-4', 'tm-5', 'tm-6', 'tm-7', 'tm-8',
+      'em-1', 'em-2', 'em-3', 'em-4', 'em-5', 'em-6', 'em-7', 'em-8'
+    ];
+    const cinemaIds = [
+      'c1', 'c2', 'c3', 'c4', 'c5', 'c6',
+      'c7', 'c8', 'c9',
+      'c10', 'c11', 'c12',
+      'c13', 'c14', 'c15',
+      'c16', 'c17', 'c18',
+      'c19', 'c20'
+    ];
+
     const today = new Date();
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      const dateStr = date.toISOString().split('T')[0];
+    const generated: Showtime[] = [];
+
+    // Generate for next 14 days
+    for (let d = 0; d < 14; d++) {
+      const showDate = new Date(today);
+      showDate.setDate(today.getDate() + d);
+      const dateStr = this.formatDateIso(showDate);
 
       movieIds.forEach(movieId => {
         cinemaIds.forEach(cinemaId => {
-          const numShowtimes = Math.floor(Math.random() * 3) + 2; // 2-4 showtimes per day
-          const shuffledTimes = [...times].sort(() => Math.random() - 0.5);
-          
-          for (let j = 0; j < numShowtimes; j++) {
+          this.standardTimings.forEach((slot, index) => {
             const showtime: Showtime = {
-              id: `st-${movieId}-${cinemaId}-${dateStr}-${j}`,
+              id: `st-${movieId}-${cinemaId}-${dateStr}-${index}`,
               movieId,
               cinemaId,
               date: dateStr,
-              time: shuffledTimes[j],
-              format: formats[Math.floor(Math.random() * formats.length)],
-              price: Math.floor(Math.random() * 8) + 10, // $10-$18
-              availableSeats: Math.floor(Math.random() * 50) + 30
+              time: slot.time,
+              format: slot.format,
+              price: slot.price, // ₹150, ₹180, ₹250, ₹280
+              availableSeats: 45 + ((index * 7 + d * 3) % 40)
             };
-            this.showtimes.push(showtime);
-          }
+            generated.push(showtime);
+          });
         });
       });
     }
+
+    this.showtimes = generated;
+    this.showtimesSubject.next(this.showtimes);
+  }
+
+  private formatDateIso(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   getShowtimes(): Observable<Showtime[]> {
-    return this.showtimesSubject.asObservable().pipe(delay(300));
+    return of(this.showtimes).pipe(delay(100));
   }
 
   getShowtimesByMovie(movieId: string): Observable<Showtime[]> {
-    return of(this.showtimes.filter(s => s.movieId === movieId)).pipe(delay(200));
+    return of(this.showtimes.filter(s => s.movieId === movieId)).pipe(delay(100));
   }
 
   getShowtimesByCinema(cinemaId: string): Observable<Showtime[]> {
-    return of(this.showtimes.filter(s => s.cinemaId === cinemaId)).pipe(delay(200));
+    return of(this.showtimes.filter(s => s.cinemaId === cinemaId)).pipe(delay(100));
   }
 
   getShowtimesByDate(date: string): Observable<Showtime[]> {
-    return of(this.showtimes.filter(s => s.date === date)).pipe(delay(200));
+    return of(this.showtimes.filter(s => s.date === date)).pipe(delay(100));
   }
 
   getFilteredShowtimes(filters: { movieId?: string; cinemaId?: string; date?: string }): Observable<Showtime[]> {
@@ -78,33 +104,18 @@ export class ShowtimeService {
       filtered = filtered.filter(s => s.date === filters.date);
     }
     
-    return of(filtered).pipe(delay(200));
+    return of(filtered).pipe(delay(100));
   }
 
   getShowtimeById(id: string): Observable<Showtime | undefined> {
-    return of(this.showtimes.find(s => s.id === id)).pipe(delay(200));
+    return of(this.showtimes.find(s => s.id === id)).pipe(delay(100));
   }
 
   updateAvailableSeats(showtimeId: string, seatsBooked: number): void {
     const showtime = this.showtimes.find(s => s.id === showtimeId);
     if (showtime) {
-      showtime.availableSeats -= seatsBooked;
+      showtime.availableSeats = Math.max(0, showtime.availableSeats - seatsBooked);
       this.showtimesSubject.next(this.showtimes);
-      this.saveToLocalStorage();
     }
-  }
-
-  private loadFromLocalStorage(): void {
-    const stored = localStorage.getItem('cinebook_showtimes');
-    if (stored) {
-      this.showtimes = JSON.parse(stored);
-      this.showtimesSubject.next(this.showtimes);
-    } else {
-      this.saveToLocalStorage();
-    }
-  }
-
-  private saveToLocalStorage(): void {
-    localStorage.setItem('cinebook_showtimes', JSON.stringify(this.showtimes));
   }
 }

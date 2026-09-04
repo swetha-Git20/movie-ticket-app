@@ -1,0 +1,66 @@
+.language-switcher-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1.25rem 0;
+}
+
+.language-pill-group {
+  display: inline-flex;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.35rem;
+  border-radius: 9999px;
+  backdrop-filter: blur(12px);
+  gap: 0.35rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.language-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.4rem;
+  border-radius: 9999px;
+  border: none;
+  background: transparent;
+  color: #a0aec0;
+  font-size: 0.925rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  outline: none;
+  user-select: none;
+}
+
+.language-pill-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.language-pill-btn.active {
+  background: linear-gradient(135deg, #e31c3d 0%, #ff4d6d 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 15px rgba(227, 28, 61, 0.4);
+}
+
+.pill-icon {
+  font-size: 1.15rem;
+}
+
+.pill-text {
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 640px) {
+  .language-pill-btn {
+    padding: 0.5rem 0.9rem;
+    font-size: 0.85rem;
+    gap: 0.35rem;
+  }
+  
+  .pill-icon {
+    font-size: 1rem;
+  }
+}

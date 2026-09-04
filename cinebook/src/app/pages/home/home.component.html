@@ -9,23 +9,43 @@
           <div class="slide-background" [style.background-image]="'url(' + movie.backdrop + ')'"></div>
           <div class="slide-overlay"></div>
           <div class="slide-content">
-            <div class="slide-genres">
-              <span class="genre-tag" *ngFor="let genre of movie.genre.slice(0, 2)">{{ genre }}</span>
+            <div class="slide-badges">
+              <span class="language-badge">{{ movie.language }}</span>
+              <span class="rating-badge">
+                <span class="material-icons star-icon">star</span>
+                {{ movie.rating }}
+              </span>
+              <span class="format-badge" *ngFor="let f of movie.format.slice(0, 2)">{{ f }}</span>
             </div>
-            <h2 class="slide-title">{{ movie.title }}</h2>
-            <button class="slide-cta" (click)="navigateToMovie(movie.id)">
-              <span class="material-icons">confirmation_number</span>
-              Book Tickets
-            </button>
+            
+            <h1 class="slide-title">{{ movie.title }}</h1>
+            <p class="slide-synopsis">{{ movie.synopsis }}</p>
+            
+            <div class="slide-meta">
+              <span class="meta-item"><span class="material-icons">schedule</span> {{ movie.duration }}</span>
+              <span class="meta-item"><span class="material-icons">movie</span> {{ movie.genre.join(', ') }}</span>
+              <span class="meta-price">Tickets from <strong>₹{{ movie.price }}</strong></span>
+            </div>
+            
+            <div class="slide-actions">
+              <button class="slide-cta" (click)="navigateToMovie(movie.id)">
+                <span class="material-icons">confirmation_number</span>
+                Book Tickets
+              </button>
+              <button class="slide-secondary" (click)="navigateToMovie(movie.id)">
+                <span class="material-icons">info</span>
+                View Details
+              </button>
+            </div>
           </div>
         </div>
       </div>
       
       <!-- Carousel Controls -->
-      <button class="carousel-control prev" (click)="prevSlide()" *ngIf="carouselMovies.length > 1">
+      <button class="carousel-control prev" (click)="prevSlide()" *ngIf="carouselMovies.length > 1" aria-label="Previous">
         <span class="material-icons">chevron_left</span>
       </button>
-      <button class="carousel-control next" (click)="nextSlide()" *ngIf="carouselMovies.length > 1">
+      <button class="carousel-control next" (click)="nextSlide()" *ngIf="carouselMovies.length > 1" aria-label="Next">
         <span class="material-icons">chevron_right</span>
       </button>
       
@@ -46,55 +66,201 @@
     <div class="skeleton-banner"></div>
   </section>
 
-  <!-- Quick Book Panel -->
-  <section class="quick-book-section">
-    <div class="glass-panel">
-      <h3 class="panel-title">Quick Book</h3>
-      <div class="quick-book-grid">
-        <div class="quick-book-field">
-          <select class="field-select" [(ngModel)]="selectedMovie" (change)="onMovieChange(selectedMovie)">
-            <option value="">Select Movie</option>
-            <option *ngFor="let movie of nowShowingMovies" [value]="movie.id">{{ movie.title }}</option>
-          </select>
-          <span class="field-icon material-icons">expand_more</span>
-        </div>
-        
-        <div class="quick-book-field">
-          <select class="field-select" [(ngModel)]="selectedCity" (change)="onCityChange(selectedCity)" [disabled]="!selectedMovie">
-            <option value="">Select City</option>
-            <option *ngFor="let city of availableCities" [value]="city">{{ city }}</option>
-          </select>
-          <span class="field-icon material-icons">expand_more</span>
-        </div>
-        
-        <div class="quick-book-field">
-          <select class="field-select" [(ngModel)]="selectedCinema" (change)="onCinemaChange(selectedCinema)" [disabled]="!selectedCity">
-            <option value="">Select Cinema</option>
-            <option *ngFor="let cinema of availableCinemas" [value]="cinema">{{ cinema }}</option>
-          </select>
-          <span class="field-icon material-icons">expand_more</span>
-        </div>
-        
-        <div class="quick-book-field">
-          <select class="field-select" [(ngModel)]="selectedDate" (change)="onDateChange(selectedDate)" [disabled]="!selectedCinema">
-            <option value="">Select Date</option>
-            <option *ngFor="let date of availableDates" [value]="date">{{ date }}</option>
-          </select>
-          <span class="field-icon material-icons">expand_more</span>
-        </div>
+  <!-- 10-Step Booking Flow Roadmap Bar -->
+  <section class="flow-roadmap-section">
+    <div class="flow-container">
+      <div class="flow-header">
+        <span class="flow-tag">CINEBOOK BOOKING JOURNEY</span>
+        <h2 class="flow-title">10-Step Seamless Movie Booking Flow</h2>
       </div>
-      
-      <div class="quick-book-field full-width">
-        <select class="field-select" [(ngModel)]="selectedShowtime" (change)="onShowtimeChange(selectedShowtime)" [disabled]="!selectedDate">
-          <option value="">Select Showtime</option>
-          <option *ngFor="let time of availableShowtimes" [value]="time">{{ time }}</option>
-        </select>
-        <span class="field-icon material-icons">expand_more</span>
+      <div class="flow-steps-track">
+        <div class="flow-step active"><span class="step-num">1</span><span class="step-label">City</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step active"><span class="step-num">2</span><span class="step-label">Date</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step active"><span class="step-num">3</span><span class="step-label">Language</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step active"><span class="step-num">4</span><span class="step-label">Movie</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step active"><span class="step-num">5</span><span class="step-label">Theatre</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step active"><span class="step-num">6</span><span class="step-label">Timing</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step active"><span class="step-num">7</span><span class="step-label">Seats</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step active"><span class="step-num">8</span><span class="step-label">Food</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step active"><span class="step-num">9</span><span class="step-label">Payment</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step active confirmation"><span class="step-num">10</span><span class="step-label">Ticket</span></div>
       </div>
     </div>
   </section>
 
-  <!-- Filter Bar -->
+  <!-- Quick Book Wizard Panel -->
+  <section class="quick-book-section">
+    <div class="glass-panel">
+      <div class="panel-header-row">
+        <div class="panel-title-group">
+          <span class="material-icons panel-icon">electric_bolt</span>
+          <div>
+            <h3 class="panel-title">Instant Movie Booking</h3>
+            <p class="panel-subtitle">Select your preferences in seconds</p>
+          </div>
+        </div>
+        <div class="city-indicator-badge">
+          <span class="material-icons">location_on</span>
+          <span>{{ selectedCity }}</span>
+        </div>
+      </div>
+
+      <div class="quick-book-grid">
+        <!-- 1. City Selection -->
+        <div class="quick-book-field">
+          <label class="field-label">1. City</label>
+          <div class="select-wrapper">
+            <span class="input-icon material-icons">location_city</span>
+            <select class="field-select" [(ngModel)]="selectedCity" (change)="onCityChange(selectedCity)">
+              <option *ngFor="let city of availableCities" [value]="city">{{ city }}</option>
+            </select>
+            <span class="field-icon material-icons">expand_more</span>
+          </div>
+        </div>
+        
+        <!-- 2. Date Selection -->
+        <div class="quick-book-field">
+          <label class="field-label">2. Booking Date</label>
+          <div class="select-wrapper">
+            <span class="input-icon material-icons">calendar_month</span>
+            <input 
+              type="date" 
+              class="field-input date-picker-input" 
+              [min]="minBookingDate" 
+              [max]="maxBookingDate"
+              [(ngModel)]="selectedDate" 
+              (change)="onDateChange(selectedDate)" 
+            />
+          </div>
+        </div>
+
+        <!-- 3. Language Filter in Wizard -->
+        <div class="quick-book-field">
+          <label class="field-label">3. Language</label>
+          <div class="select-wrapper">
+            <span class="input-icon material-icons">translate</span>
+            <select class="field-select" [(ngModel)]="selectedLanguage" (change)="onLanguageChanged(selectedLanguage)">
+              <option value="All">All Languages</option>
+              <option value="Tamil">Tamil</option>
+              <option value="English">English</option>
+            </select>
+            <span class="field-icon material-icons">expand_more</span>
+          </div>
+        </div>
+
+        <!-- 4. Movie Selection -->
+        <div class="quick-book-field">
+          <label class="field-label">4. Movie</label>
+          <div class="select-wrapper">
+            <span class="input-icon material-icons">movie</span>
+            <select class="field-select" [(ngModel)]="selectedMovie" (change)="onMovieChange(selectedMovie)">
+              <option value="">Select Movie</option>
+              <option *ngFor="let movie of nowShowingMovies" [value]="movie.id">
+                {{ movie.title }} ({{ movie.language }})
+              </option>
+            </select>
+            <span class="field-icon material-icons">expand_more</span>
+          </div>
+        </div>
+        
+        <!-- 5. Theatre Selection -->
+        <div class="quick-book-field">
+          <label class="field-label">5. Theatre in {{ selectedCity }}</label>
+          <div class="select-wrapper">
+            <span class="input-icon material-icons">theater_comedy</span>
+            <select class="field-select" [(ngModel)]="selectedCinema" (change)="onCinemaChange(selectedCinema)" [disabled]="!selectedMovie">
+              <option value="">Select Cinema</option>
+              <option *ngFor="let cinema of filteredCinemasForCity" [value]="cinema.id">
+                {{ cinema.name }}
+              </option>
+            </select>
+            <span class="field-icon material-icons">expand_more</span>
+          </div>
+        </div>
+
+        <!-- 6. Show Timing & ₹ Price -->
+        <div class="quick-book-field">
+          <label class="field-label">6. Show Timing & Price</label>
+          <div class="select-wrapper">
+            <span class="input-icon material-icons">schedule</span>
+            <select class="field-select" [(ngModel)]="selectedShowtime" (change)="onShowtimeChange(selectedShowtime)" [disabled]="!selectedCinema">
+              <option value="">Select Show Timing</option>
+              <option *ngFor="let st of availableShowtimesForSelection" [value]="st.id">
+                {{ st.time }} - {{ st.format }} (₹{{ st.price }})
+              </option>
+            </select>
+            <span class="field-icon material-icons">expand_more</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- CTA Proceed -->
+      <div class="quick-book-cta-row">
+        <button class="quick-book-submit-btn" (click)="onQuickBook()">
+          <span class="material-icons">event_seat</span>
+          {{ selectedShowtime ? 'Select Seats & Book' : (selectedMovie ? 'View Theatres & Timings' : 'Explore All Movies') }}
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Calendar Date Horizontal Strip -->
+  <section class="date-strip-section">
+    <div class="section-container">
+      <div class="date-strip-header">
+        <div class="title-with-badge">
+          <span class="material-icons icon-calendar">today</span>
+          <h3 class="strip-heading">Select Booking Date</h3>
+        </div>
+        <div class="calendar-input-control">
+          <label class="cal-label">Pick Specific Date:</label>
+          <input 
+            type="date" 
+            class="custom-cal-input" 
+            [min]="minBookingDate" 
+            [max]="maxBookingDate"
+            [(ngModel)]="selectedDate" 
+            (change)="onDateChange(selectedDate)" 
+          />
+        </div>
+      </div>
+
+      <div class="date-strip-scroll">
+        <button 
+          *ngFor="let d of dateOptions"
+          type="button"
+          class="date-card"
+          [class.active]="selectedDate === d.fullDate"
+          (click)="onDateChange(d.fullDate)">
+          <span class="day-name">{{ d.dayName }}</span>
+          <span class="day-number">{{ d.dayNumber }}</span>
+          <span class="month-name">{{ d.monthName }}</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Language Switcher Section (Tamil Movies / English Movies) -->
+  <section class="language-selection-section">
+    <div class="section-container text-center">
+      <h3 class="sub-heading">Browse Movies by Language</h3>
+      <app-language-switcher 
+        [selectedLanguage]="selectedLanguage" 
+        (languageChange)="onLanguageChanged($event)">
+      </app-language-switcher>
+    </div>
+  </section>
+
+  <!-- Genre Filter Bar -->
   <section class="filter-section">
     <div class="filter-scroll">
       <button 
@@ -102,16 +268,24 @@
         class="filter-btn"
         [class.active]="activeFilter === filter"
         (click)="setFilter(filter)">
-        {{ filter }}
+        {{ filter === 'All' ? 'All Genres' : filter }}
       </button>
     </div>
   </section>
 
-  <!-- Now Showing -->
+  <!-- Now Showing Grid -->
   <section class="movies-section">
     <div class="section-header">
-      <h3 class="section-title">Now Showing</h3>
-      <button class="see-all-btn" (click)="router.navigate(['/movies'])">See All</button>
+      <div class="header-left">
+        <h2 class="section-title">
+          {{ selectedLanguage === 'All' ? 'Now Showing Movies' : (selectedLanguage + ' Movies Now Showing') }}
+        </h2>
+        <span class="count-badge">{{ nowShowingMovies.length }} Available</span>
+      </div>
+      <button class="see-all-btn" (click)="router.navigate(['/showtimes'])">
+        View All Showtimes
+        <span class="material-icons">arrow_forward</span>
+      </button>
     </div>
     
     <div class="movies-grid" *ngIf="!isLoading">
@@ -122,29 +296,46 @@
       </app-movie-card>
     </div>
     
+    <div class="empty-state" *ngIf="!isLoading && nowShowingMovies.length === 0">
+      <span class="material-icons empty-icon">movie_filter</span>
+      <h3>No movies found</h3>
+      <p>No movies currently match the selected language or filter.</p>
+      <button class="reset-filter-btn" (click)="onLanguageChanged('All'); setFilter('All')">Show All Movies</button>
+    </div>
+
     <div class="movies-grid" *ngIf="isLoading">
       <div class="loading-spinner"></div>
-      <p class="loading-text">Loading movies...</p>
+      <p class="loading-text">Loading movies for {{ selectedCity }}...</p>
     </div>
   </section>
 
   <!-- Coming Soon -->
-  <section class="movies-section">
+  <section class="movies-section coming-soon-section">
     <div class="section-header">
-      <h3 class="section-title">Coming Soon</h3>
+      <div class="header-left">
+        <h2 class="section-title">Coming Soon to Cinemas</h2>
+        <span class="count-badge upcoming-badge">Blockbusters Ahead</span>
+      </div>
     </div>
     
     <div class="movies-grid coming-soon" *ngIf="!isLoading">
       <div class="coming-soon-card" *ngFor="let movie of comingSoonMovies">
         <div class="coming-soon-poster">
           <img [src]="movie.poster" [alt]="movie.title" loading="lazy" />
-          <div class="coming-soon-badge">Coming Soon</div>
+          <div class="coming-soon-badge">Releasing Soon</div>
+          <div class="language-tag">{{ movie.language }}</div>
         </div>
         <div class="coming-soon-info">
           <h4 class="coming-soon-title">{{ movie.title }}</h4>
-          <p class="coming-soon-date">{{ movie.releaseDate }}</p>
+          <p class="coming-soon-date">
+            <span class="material-icons">event</span>
+            Expected: {{ movie.releaseDate }}
+          </p>
+          <div class="format-chips">
+            <span class="format-chip" *ngFor="let f of movie.format">{{ f }}</span>
+          </div>
           <button class="notify-btn" (click)="onNotifyMe(movie)">
-            <span class="material-icons">notifications</span>
+            <span class="material-icons">notifications_active</span>
             Notify Me
           </button>
         </div>
@@ -153,7 +344,7 @@
     
     <div class="movies-grid" *ngIf="isLoading">
       <div class="loading-spinner"></div>
-      <p class="loading-text">Loading coming soon...</p>
+      <p class="loading-text">Loading upcoming releases...</p>
     </div>
   </section>
 </main>

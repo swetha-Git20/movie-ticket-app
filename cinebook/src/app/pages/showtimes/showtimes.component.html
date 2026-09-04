@@ -1,100 +1,166 @@
 <app-navbar></app-navbar>
 
 <main class="showtimes-page">
+  <!-- Header -->
   <section class="page-header">
-    <div class="header-content">
-      <h1 class="page-title">Showtimes</h1>
-      <p class="page-subtitle">Find showtimes for your favorite movies</p>
+    <div class="header-container">
+      <div class="header-content">
+        <span class="header-tag">THEATRES & TIMINGS</span>
+        <h1 class="page-title">Showtimes in {{ selectedCity }}</h1>
+        <p class="page-subtitle">Pick your preferred theatre, format, timing, and ₹ pricing</p>
+      </div>
+
+      <!-- Language Selector -->
+      <app-language-switcher 
+        [selectedLanguage]="selectedLanguage" 
+        (languageChange)="onLanguageChange($event)">
+      </app-language-switcher>
     </div>
   </section>
 
-  <!-- Filters -->
-  <section class="filters-section">
-    <div class="filters-container">
+  <!-- Horizontal Date Strip -->
+  <section class="date-strip-section">
+    <div class="date-strip-container">
+      <div class="date-scroll">
+        <button 
+          *ngFor="let d of availableDates"
+          type="button"
+          class="date-tab"
+          [class.active]="selectedDate === d.fullDate"
+          (click)="onDateChange(d.fullDate)">
+          <span class="day-label">{{ d.dayName }}</span>
+          <span class="date-number">{{ d.dayNumber }}</span>
+          <span class="month-label">{{ d.monthName }}</span>
+        </button>
+      </div>
+
+      <!-- Custom Date Input -->
+      <div class="cal-picker-box">
+        <span class="material-icons">calendar_month</span>
+        <input 
+          type="date" 
+          class="calendar-input" 
+          [min]="minDate" 
+          [max]="maxDate"
+          [(ngModel)]="selectedDate" 
+          (change)="onDateChange(selectedDate)" 
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- Filter Bar -->
+  <section class="filter-bar-section">
+    <div class="filter-bar-container">
+      <!-- City Filter -->
+      <div class="filter-group">
+        <label class="filter-label">City</label>
+        <div class="filter-select-wrapper">
+          <span class="material-icons select-icon">location_city</span>
+          <select class="filter-select" [(ngModel)]="selectedCity" (change)="onCityChange(selectedCity)">
+            <option *ngFor="let city of availableCities" [value]="city">{{ city }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Movie Filter -->
       <div class="filter-group">
         <label class="filter-label">Movie</label>
-        <select class="filter-select" [(ngModel)]="selectedMovie" (change)="onMovieChange(selectedMovie)">
-          <option value="">All Movies</option>
-          <option *ngFor="let movie of movies" [value]="movie.id">{{ movie.title }}</option>
-        </select>
+        <div class="filter-select-wrapper">
+          <span class="material-icons select-icon">movie</span>
+          <select class="filter-select" [(ngModel)]="selectedMovie" (change)="onMovieChange(selectedMovie)">
+            <option value="">All Movies</option>
+            <option *ngFor="let movie of movies" [value]="movie.id">{{ movie.title }} ({{ movie.language }})</option>
+          </select>
+        </div>
       </div>
-      
+
+      <!-- Cinema Filter -->
       <div class="filter-group">
-        <label class="filter-label">Cinema</label>
-        <select class="filter-select" [(ngModel)]="selectedCinema" (change)="onCinemaChange(selectedCinema)">
-          <option value="">All Cinemas</option>
-          <option *ngFor="let cinema of cinemas" [value]="cinema.id">{{ cinema.name }}</option>
-        </select>
+        <label class="filter-label">Theatre</label>
+        <div class="filter-select-wrapper">
+          <span class="material-icons select-icon">theater_comedy</span>
+          <select class="filter-select" [(ngModel)]="selectedCinema" (change)="onCinemaChange(selectedCinema)">
+            <option value="">All Theatres in {{ selectedCity }}</option>
+            <option *ngFor="let cinema of filteredCinemas" [value]="cinema.id">{{ cinema.name }}</option>
+          </select>
+        </div>
       </div>
-      
-      <div class="filter-group">
-        <label class="filter-label">Date</label>
-        <select class="filter-select" [(ngModel)]="selectedDate" (change)="onDateChange(selectedDate)">
-          <option *ngFor="let date of availableDates" [value]="date">{{ formatDate(date) }}</option>
-        </select>
-      </div>
-      
-      <button class="clear-filters-btn" (click)="clearFilters()" *ngIf="selectedMovie || selectedCinema">
-        Clear
+
+      <button class="clear-filters-btn" (click)="clearFilters()">
+        <span class="material-icons">restart_alt</span>
+        Reset
       </button>
     </div>
   </section>
 
-  <!-- Showtimes Results -->
-  <section class="showtimes-section">
-    <div class="results-info" *ngIf="!isLoading">
-      <span class="results-count">{{ showtimes.length }} showtimes found</span>
-    </div>
-    
-    <div class="showtimes-list" *ngIf="!isLoading && getObjectKeys(groupedShowtimes).length > 0">
-      <div class="cinema-group" *ngFor="let cinemaId of getObjectKeys(groupedShowtimes)">
-        <div class="cinema-header">
-          <div class="cinema-info">
-            <h3 class="cinema-name">{{ getCinemaName(cinemaId) }}</h3>
-            <p class="cinema-location" *ngIf="getCinema(cinemaId)">{{ getCinema(cinemaId)!.city }}</p>
+  <!-- Showtimes List Grouped by Cinema -->
+  <section class="showtimes-content-section">
+    <div class="theatres-list" *ngIf="!isLoading && getGroupedCinemaIds().length > 0">
+      <div class="theatre-card" *ngFor="let cinemaId of getGroupedCinemaIds()">
+        <!-- Theatre Info Header -->
+        <div class="theatre-header">
+          <div class="theatre-details">
+            <h2 class="theatre-name">{{ getCinema(cinemaId)?.name }}</h2>
+            <p class="theatre-address">
+              <span class="material-icons">place</span>
+              {{ getCinema(cinemaId)?.address }}
+            </p>
+            <div class="theatre-facilities">
+              <span class="facility-chip" *ngFor="let facility of getCinema(cinemaId)?.facilities">
+                {{ facility }}
+              </span>
+            </div>
           </div>
-          <button class="view-cinema-btn" (click)="router.navigate(['/cinemas'])">
-            View Cinema
-            <span class="material-icons">arrow_forward</span>
-          </button>
+          <div class="theatre-rating" *ngIf="getCinema(cinemaId)?.rating">
+            <span class="material-icons star">star</span>
+            <span>{{ getCinema(cinemaId)?.rating }}</span>
+          </div>
         </div>
-        
-        <div class="showtimes-grid">
-          <div 
-            class="showtime-card"
-            *ngFor="let showtime of groupedShowtimes[cinemaId]"
-            (click)="selectShowtime(showtime)">
-            <div class="showtime-movie">
-              <span class="movie-name">{{ getMovieName(showtime.movieId) }}</span>
-              <span class="showtime-format">{{ showtime.format }}</span>
+
+        <!-- Movies and Showtimes in this Theatre -->
+        <div class="theatre-movies">
+          <div class="movie-row" *ngFor="let item of getShowtimesForCinemaByMovie(cinemaId)">
+            <div class="movie-badge-info" *ngIf="item.movie">
+              <img [src]="item.movie.poster" [alt]="item.movie.title" class="tiny-poster" />
+              <div class="movie-row-meta">
+                <h3 class="movie-row-title">{{ item.movie.title }}</h3>
+                <div class="movie-row-tags">
+                  <span class="lang-tag">{{ item.movie.language }}</span>
+                  <span class="duration-tag">{{ item.movie.duration }}</span>
+                </div>
+              </div>
             </div>
-            <div class="showtime-details">
-              <span class="showtime-time">{{ showtime.time }}</span>
-              <span class="showtime-price">${{ showtime.price }}</span>
-            </div>
-            <div class="showtime-availability">
-              <span class="available-seats">{{ showtime.availableSeats }} seats</span>
-              <span class="material-icons chevron">chevron_right</span>
+
+            <!-- Showtimes Grid with ₹ Pricing -->
+            <div class="showtimes-grid">
+              <button 
+                *ngFor="let showtime of item.showtimes"
+                type="button"
+                class="showtime-pill"
+                (click)="selectShowtime(showtime)">
+                <span class="st-time">{{ showtime.time }}</span>
+                <span class="st-fmt">{{ showtime.format }}</span>
+                <span class="st-price">₹{{ showtime.price }}</span>
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
-    
-    <div class="empty-state" *ngIf="!isLoading && getObjectKeys(groupedShowtimes).length === 0">
-      <span class="material-icons empty-icon">schedule</span>
-      <h3 class="empty-title">No showtimes available</h3>
-      <p class="empty-message">Try adjusting your filters or selecting a different date</p>
-      <button class="reset-btn" (click)="clearFilters()">Reset Filters</button>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!isLoading && getGroupedCinemaIds().length === 0">
+      <span class="material-icons empty-icon">theaters</span>
+      <h3>No showtimes available</h3>
+      <p>No showtimes match your current filters in {{ selectedCity }} on {{ formatDate(selectedDate) }}.</p>
+      <button class="reset-btn" (click)="clearFilters()">Reset All Filters</button>
     </div>
-    
-    <div class="showtimes-list" *ngIf="isLoading">
-      <div class="skeleton-group" *ngFor="let i of [].constructor(3)">
-        <div class="skeleton-header"></div>
-        <div class="skeleton-grid">
-          <div class="skeleton-card" *ngFor="let j of [].constructor(2)"></div>
-        </div>
-      </div>
+
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="loading-spinner"></div>
+      <p>Loading showtimes & ticket prices...</p>
     </div>
   </section>
 </main>

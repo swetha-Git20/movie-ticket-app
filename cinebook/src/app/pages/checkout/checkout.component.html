@@ -1,216 +1,276 @@
 <app-navbar></app-navbar>
 
 <main class="checkout-page">
+  <!-- Booking Stepper Bar -->
+  <section class="booking-flow-stepper">
+    <div class="stepper-container">
+      <div class="step-pill done">
+        <span class="step-num material-icons">check</span>
+        <span>1. {{ cinema?.name }}</span>
+      </div>
+      <span class="step-arrow">→</span>
+      <div class="step-pill done">
+        <span class="step-num material-icons">check</span>
+        <span>2. Seats: {{ getSelectedSeatsList() }}</span>
+      </div>
+      <span class="step-arrow">→</span>
+      <div class="step-pill done">
+        <span class="step-num material-icons">check</span>
+        <span>3. Food & Snacks ({{ foodCart.length }})</span>
+      </div>
+      <span class="step-arrow">→</span>
+      <div class="step-pill active">
+        <span class="step-num">4</span>
+        <span>4. Payment & Confirm</span>
+      </div>
+    </div>
+  </section>
+
   <!-- Header -->
   <section class="page-header">
     <div class="header-content">
       <button class="back-btn" (click)="goBack()">
         <span class="material-icons">arrow_back</span>
+        Back
       </button>
-      <h1 class="page-title">Checkout</h1>
+      <div class="header-info">
+        <h1 class="page-title">Booking Checkout & Payment</h1>
+        <p class="page-subtitle">Review your booking details and make payment securely</p>
+      </div>
     </div>
   </section>
 
+  <!-- Main Grid -->
   <section class="checkout-content">
-    <!-- Left Column - Order Summary -->
-    <div class="order-summary">
-      <h2 class="section-title">Order Summary</h2>
-      
-      <!-- Movie Info -->
-      <div class="summary-card" *ngIf="movie">
-        <div class="summary-header">
-          <h3 class="card-title">Movie</h3>
-        </div>
-        <div class="movie-summary">
-          <img class="movie-thumb" [src]="movie.poster" [alt]="movie.title" />
-          <div class="movie-details">
-            <h4 class="movie-name">{{ movie.title }}</h4>
-            <p class="movie-meta" *ngIf="cinema && showtime">
-              {{ cinema.name }} • {{ showtime.date }} • {{ showtime.time }}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Seats -->
-      <div class="summary-card" *ngIf="selectedSeats.length > 0">
-        <div class="summary-header">
-          <h3 class="card-title">Seats</h3>
-          <span class="seats-count">{{ selectedSeats.length }} seats</span>
-        </div>
-        <div class="seats-list">
-          <div class="seat-item" *ngFor="let seat of selectedSeats">
-            <span class="seat-info">{{ seat.row }}{{ seat.number }}</span>
-            <span class="seat-price">${{ seat.price }}</span>
-          </div>
-        </div>
-        <div class="summary-row">
-          <span>Seats Total</span>
-          <span>${{ seatsTotal }}</span>
-        </div>
-      </div>
-
-      <!-- Food -->
-      <div class="summary-card" *ngIf="foodCart.length > 0">
-        <div class="summary-header">
-          <h3 class="card-title">Food & Beverages</h3>
-          <span class="items-count">{{ foodCart.length }} items</span>
-        </div>
-        <div class="food-list">
-          <div class="food-item" *ngFor="let item of foodCart">
-            <div class="food-info">
-              <span class="food-name">{{ item.foodItem.name }}</span>
-              <span class="food-quantity">x{{ item.quantity }}</span>
+    <div class="checkout-grid">
+      <!-- Left Column: Order Summary -->
+      <div class="summary-column">
+        <!-- Movie Card -->
+        <div class="summary-card glass-panel" *ngIf="movie && showtime && cinema">
+          <div class="movie-header-row">
+            <img [src]="movie.poster" [alt]="movie.title" class="summary-poster" />
+            <div class="movie-meta-summary">
+              <span class="movie-lang-tag">{{ movie.language }}</span>
+              <h2 class="summary-movie-title">{{ movie.title }}</h2>
+              <p class="summary-cinema">
+                <span class="material-icons">theater_comedy</span>
+                {{ cinema.name }}, {{ cinema.city }}
+              </p>
+              <p class="summary-time">
+                <span class="material-icons">schedule</span>
+                {{ formatDate(showtime.date) }} • {{ showtime.time }} ({{ showtime.format }})
+              </p>
             </div>
-            <span class="food-price">${{ item.foodItem.price * item.quantity }}</span>
           </div>
         </div>
-        <div class="summary-row">
-          <span>Food Total</span>
-          <span>${{ foodTotal }}</span>
+
+        <!-- Seats Breakdown -->
+        <div class="summary-card glass-panel">
+          <h3 class="card-heading">
+            <span class="material-icons">event_seat</span>
+            Selected Seats ({{ selectedSeats.length }})
+          </h3>
+          <div class="seats-list-breakdown">
+            <div class="seat-item" *ngFor="let seat of selectedSeats">
+              <div class="seat-info">
+                <span class="seat-badge">{{ seat.row }}{{ seat.number }}</span>
+                <span class="seat-type-label">{{ seat.type | uppercase }}</span>
+              </div>
+              <span class="seat-price">₹{{ seat.price }}</span>
+            </div>
+          </div>
+          <div class="subtotal-row">
+            <span>Tickets Subtotal</span>
+            <span class="subtotal-val">₹{{ seatsTotal }}</span>
+          </div>
+        </div>
+
+        <!-- Food & Snacks Breakdown -->
+        <div class="summary-card glass-panel" *ngIf="foodCart.length > 0">
+          <h3 class="card-heading">
+            <span class="material-icons">fastfood</span>
+            Snacks & Beverages ({{ foodCart.length }})
+          </h3>
+          <div class="food-list-breakdown">
+            <div class="food-item" *ngFor="let item of foodCart">
+              <div class="food-item-info">
+                <span class="food-name">{{ item.foodItem.name }}</span>
+                <span class="food-qty">x{{ item.quantity }}</span>
+              </div>
+              <span class="food-price">₹{{ item.foodItem.price * item.quantity }}</span>
+            </div>
+          </div>
+          <div class="subtotal-row">
+            <span>Food Subtotal</span>
+            <span class="subtotal-val">₹{{ foodTotal }}</span>
+          </div>
+        </div>
+
+        <!-- Price Breakdown in ₹ -->
+        <div class="summary-card glass-panel pricing-card">
+          <h3 class="card-heading">Payment Breakdown</h3>
+          <div class="price-breakdown">
+            <div class="price-row">
+              <span>Tickets Subtotal</span>
+              <span>₹{{ seatsTotal }}</span>
+            </div>
+            <div class="price-row" *ngIf="foodTotal > 0">
+              <span>Food & Snacks Subtotal</span>
+              <span>₹{{ foodTotal }}</span>
+            </div>
+            <div class="price-row">
+              <span>Convenience Fee & Taxes</span>
+              <span>₹{{ convenienceFee }}</span>
+            </div>
+            <div class="price-row discount-row" *ngIf="couponDiscount > 0">
+              <span>Promo Discount ({{ appliedCoupon?.code }})</span>
+              <span class="discount-val">-₹{{ couponDiscount }}</span>
+            </div>
+            <div class="total-row">
+              <span class="total-text">Total Payable Amount</span>
+              <span class="total-amount">₹{{ total }}</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Coupon -->
-      <div class="summary-card coupon-card">
-        <div class="coupon-input-wrapper">
-          <input 
-            type="text" 
-            class="coupon-input" 
-            placeholder="Enter coupon code" 
-            [(ngModel)]="couponCode"
-            [disabled]="couponValid"
-          />
-          <button class="apply-coupon-btn" (click)="applyCoupon()" *ngIf="!couponValid">
-            Apply
+      <!-- Right Column: Payment & Promo -->
+      <div class="payment-column">
+        <!-- Promo Code Section -->
+        <div class="promo-card glass-panel">
+          <h3 class="card-heading">
+            <span class="material-icons">local_offer</span>
+            Apply Promo Code
+          </h3>
+          <div class="promo-input-group" *ngIf="!couponValid">
+            <input 
+              type="text" 
+              class="promo-input" 
+              placeholder="e.g. FIRSTFREE or WEEKEND50" 
+              [(ngModel)]="couponCode"
+              (keyup.enter)="applyCoupon()"
+            />
+            <button class="apply-btn" (click)="applyCoupon()">Apply</button>
+          </div>
+          
+          <div class="applied-coupon" *ngIf="couponValid">
+            <div class="applied-info">
+              <span class="material-icons check-icon">check_circle</span>
+              <div>
+                <strong>{{ appliedCoupon?.code }}</strong>
+                <p>Saved ₹{{ couponDiscount }} on this booking</p>
+              </div>
+            </div>
+            <button class="remove-coupon-btn" (click)="removeCoupon()">Remove</button>
+          </div>
+
+          <div class="promo-message" [class.success]="couponValid" [class.error]="!couponValid && couponMessage">
+            {{ couponMessage }}
+          </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="payment-methods-card glass-panel">
+          <h3 class="card-heading">
+            <span class="material-icons">payment</span>
+            Choose Payment Method
+          </h3>
+
+          <div class="payment-tabs">
+            <button 
+              class="payment-tab" 
+              [class.active]="selectedPaymentMethod === 'upi'"
+              (click)="selectPaymentMethod('upi')">
+              <span class="material-icons">qr_code_2</span>
+              <span>UPI (Instant)</span>
+            </button>
+            <button 
+              class="payment-tab" 
+              [class.active]="selectedPaymentMethod === 'card'"
+              (click)="selectPaymentMethod('card')">
+              <span class="material-icons">credit_card</span>
+              <span>Cards</span>
+            </button>
+            <button 
+              class="payment-tab" 
+              [class.active]="selectedPaymentMethod === 'netbanking'"
+              (click)="selectPaymentMethod('netbanking')">
+              <span class="material-icons">account_balance</span>
+              <span>Net Banking</span>
+            </button>
+          </div>
+
+          <!-- UPI Form -->
+          <div class="payment-details-box" *ngIf="selectedPaymentMethod === 'upi'">
+            <label class="form-label">Enter UPI ID (Google Pay / PhonePe / Paytm / BHIM):</label>
+            <input type="text" class="form-input" [(ngModel)]="upiId" placeholder="username@okhdfcbank" />
+            <div class="upi-apps-row">
+              <span class="upi-badge">GPay</span>
+              <span class="upi-badge">PhonePe</span>
+              <span class="upi-badge">Paytm</span>
+              <span class="upi-badge">BHIM</span>
+            </div>
+          </div>
+
+          <!-- Card Form -->
+          <div class="payment-details-box" *ngIf="selectedPaymentMethod === 'card'">
+            <label class="form-label">Card Number:</label>
+            <input type="text" class="form-input" [(ngModel)]="cardNumber" placeholder="4532 8976 1234 5678" />
+            <div class="card-extra-row">
+              <div>
+                <label class="form-label">Expiry Date:</label>
+                <input type="text" class="form-input" [(ngModel)]="cardExpiry" placeholder="MM/YY" />
+              </div>
+              <div>
+                <label class="form-label">CVV:</label>
+                <input type="password" class="form-input" [(ngModel)]="cardCvv" placeholder="123" maxlength="3" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Net Banking -->
+          <div class="payment-details-box" *ngIf="selectedPaymentMethod === 'netbanking'">
+            <label class="form-label">Select Bank:</label>
+            <select class="form-input" [(ngModel)]="selectedBank">
+              <option>HDFC Bank</option>
+              <option>State Bank of India</option>
+              <option>ICICI Bank</option>
+              <option>Axis Bank</option>
+              <option>Indian Bank</option>
+            </select>
+          </div>
+
+          <!-- Pay Button -->
+          <button 
+            class="pay-btn" 
+            [disabled]="isProcessing"
+            (click)="openConfirmModal()">
+            <span *ngIf="!isProcessing">Pay ₹{{ total }} & Confirm Booking</span>
+            <span *ngIf="isProcessing" class="processing-text">
+              <span class="spinner-small"></span> Processing Payment...
+            </span>
           </button>
-          <button class="remove-coupon-btn" (click)="removeCoupon()" *ngIf="couponValid">
-            Remove
-          </button>
-        </div>
-        <div class="coupon-message" [class.success]="couponValid" [class.error]="!couponValid && couponMessage">
-          {{ couponMessage }}
         </div>
       </div>
-
-      <!-- Price Breakdown -->
-      <div class="price-breakdown">
-        <div class="breakdown-row">
-          <span>Subtotal</span>
-          <span>${{ seatsTotal + foodTotal }}</span>
-        </div>
-        <div class="breakdown-row">
-          <span>Convenience Fee</span>
-          <span>${{ convenienceFee }}</span>
-        </div>
-        <div class="breakdown-row discount" *ngIf="couponDiscount > 0">
-          <span>Discount</span>
-          <span>-${{ couponDiscount }}</span>
-        </div>
-        <div class="breakdown-row total">
-          <span>Total</span>
-          <span>${{ total }}</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Right Column - Payment -->
-    <div class="payment-section">
-      <h2 class="section-title">Payment Method</h2>
-      
-      <div class="payment-methods">
-        <button 
-          *ngFor="let method of paymentMethods"
-          class="payment-method"
-          [class.selected]="selectedPaymentMethod === method"
-          (click)="selectPaymentMethod(method)">
-          <span class="method-icon material-icons">
-            <span *ngIf="method === 'upi'">phone_android</span>
-            <span *ngIf="method === 'card'">credit_card</span>
-            <span *ngIf="method === 'netbanking'">account_balance</span>
-          </span>
-          <span class="method-label">{{ getPaymentMethodLabel(method) }}</span>
-          <span class="method-check material-icons" *ngIf="selectedPaymentMethod === method">check_circle</span>
-        </button>
-      </div>
-
-      <!-- Payment Form Fields -->
-      <div class="payment-form">
-        <div class="form-group" *ngIf="selectedPaymentMethod === 'upi'">
-          <label class="form-label">UPI ID</label>
-          <input type="text" class="form-input" placeholder="yourname@upi" />
-        </div>
-        
-        <div class="form-group" *ngIf="selectedPaymentMethod === 'card'">
-          <label class="form-label">Card Number</label>
-          <input type="text" class="form-input" placeholder="1234 5678 9012 3456" />
-        </div>
-        
-        <div class="form-row" *ngIf="selectedPaymentMethod === 'card'">
-          <div class="form-group">
-            <label class="form-label">Expiry</label>
-            <input type="text" class="form-input" placeholder="MM/YY" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">CVV</label>
-            <input type="text" class="form-input" placeholder="123" />
-          </div>
-        </div>
-        
-        <div class="form-group" *ngIf="selectedPaymentMethod === 'netbanking'">
-          <label class="form-label">Select Bank</label>
-          <select class="form-select">
-            <option>Select your bank</option>
-            <option>State Bank of India</option>
-            <option>HDFC Bank</option>
-            <option>ICICI Bank</option>
-            <option>Axis Bank</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Pay Button -->
-      <button 
-        class="pay-btn"
-        [disabled]="isProcessing || selectedSeats.length === 0"
-        (click)="openConfirmModal()">
-        <span *ngIf="!isProcessing">Pay ${{ total }}</span>
-        <span *ngIf="isProcessing">
-          <span class="spinner"></span>
-          Processing...
-        </span>
-      </button>
-
-      <p class="secure-note">
-        <span class="material-icons">lock</span>
-        Secure payment powered by CineBook
-      </p>
     </div>
   </section>
 </main>
 
-<!-- Confirm Modal -->
-<app-modal [isOpen]="showConfirmModal" [title]="'Confirm Payment'" (close)="closeConfirmModal()">
-  <div class="confirm-content">
-    <div class="confirm-details">
-      <h3>Payment Summary</h3>
-      <div class="confirm-row">
-        <span>Movie</span>
-        <span *ngIf="movie">{{ movie.title }}</span>
-      </div>
-      <div class="confirm-row">
-        <span>Seats</span>
-        <span>{{ getSelectedSeatsList() }}</span>
-      </div>
-      <div class="confirm-row">
-        <span>Total Amount</span>
-        <span class="confirm-total">${{ total }}</span>
-      </div>
+<!-- Confirm Payment Modal -->
+<app-modal [isOpen]="showConfirmModal" [title]="'Confirm Movie Booking'" (close)="closeConfirmModal()">
+  <div class="confirm-modal-content">
+    <div class="confirm-movie-title">{{ movie?.title }}</div>
+    <p class="confirm-cinema">{{ cinema?.name }} • {{ showtime?.time }}</p>
+    <div class="confirm-details-list">
+      <div class="confirm-row"><span>Seats:</span><strong>{{ getSelectedSeatsList() }}</strong></div>
+      <div class="confirm-row"><span>Date:</span><strong>{{ formatDate(showtime?.date) }}</strong></div>
+      <div class="confirm-row"><span>Total Amount:</span><strong class="confirm-total">₹{{ total }}</strong></div>
+      <div class="confirm-row"><span>Payment Via:</span><strong>{{ getPaymentMethodLabel(selectedPaymentMethod) }}</strong></div>
     </div>
-    
+
     <div class="confirm-actions">
-      <button class="cancel-btn" (click)="closeConfirmModal()">Cancel</button>
-      <button class="confirm-btn" (click)="processPayment()">Confirm & Pay</button>
+      <button class="modal-cancel-btn" (click)="closeConfirmModal()">Cancel</button>
+      <button class="modal-confirm-btn" (click)="processPayment()">Pay ₹{{ total }}</button>
     </div>
   </div>
 </app-modal>

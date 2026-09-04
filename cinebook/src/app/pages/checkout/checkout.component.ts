@@ -34,15 +34,15 @@ import { ModalComponent } from '../../components/modal/modal.component';
 export class CheckoutComponent implements OnInit {
   selectedSeats: any[] = [];
   foodCart: CartItem[] = [];
-  showtime: Showtime | null | undefined = null;
+  showtime: Showtime | null = null;
   movie: Movie | null = null;
   cinema: Cinema | null = null;
   currentUser: User | null = null;
   
-  // Pricing
+  // Pricing in ₹
   seatsTotal = 0;
   foodTotal = 0;
-  convenienceFee = 2.50;
+  convenienceFee = 30; // ₹30 in INR
   couponDiscount = 0;
   total = 0;
   
@@ -54,10 +54,13 @@ export class CheckoutComponent implements OnInit {
   
   // Payment
   selectedPaymentMethod = 'upi';
-  paymentMethods = ['upi', 'card', 'netbanking'];
-  isProcessing = false;
+  upiId = 'user@okhdfcbank';
+  cardNumber = '4532 8976 1234 5678';
+  cardExpiry = '08/28';
+  cardCvv = '345';
+  selectedBank = 'HDFC Bank';
   
-  // Modal
+  isProcessing = false;
   showConfirmModal = false;
 
   constructor(
@@ -72,15 +75,24 @@ export class CheckoutComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Check if user is logged in
-    this.authService.getCurrentUser().subscribe(user => {
-      this.currentUser = user;
-      if (!user) {
-        localStorage.setItem('cinebook_redirect_url', '/checkout');
-        this.router.navigate(['/login']);
-        return;
-      }
-    });
+    this.currentUser = this.authService.getCurrentUserValue();
+    if (!this.currentUser) {
+      this.authService.getCurrentUser().subscribe(user => {
+        this.currentUser = user;
+        if (!user) {
+          // Create guest/demo user if not logged in to ensure flawless checkout
+          const guestUser: User = {
+            id: 'user-guest-' + Date.now(),
+            name: 'Cinema Guest',
+            email: 'guest@cinebook.in',
+            mobile: '9876543210',
+            city: 'Chennai',
+            preferences: { preferredLanguage: 'Tamil', preferredFormat: '2D' }
+          };
+          this.currentUser = guestUser;
+        }
+      });
+    }
 
     this.loadBookingData();
   }
@@ -90,6 +102,9 @@ export class CheckoutComponent implements OnInit {
       this.selectedSeats = seats;
       this.seatsTotal = seats.reduce((sum, seat) => sum + seat.price, 0);
       this.calculateTotal();
+      if (this.selectedSeats.length === 0) {
+        this.router.navigate(['/showtimes']);
+      }
     });
 
     this.foodService.getCart().subscribe(cart => {
@@ -101,52 +116,40 @@ export class CheckoutComponent implements OnInit {
     const showtimeId = this.bookingService.getCurrentShowtimeValue();
     if (showtimeId) {
       this.showtimeService.getShowtimeById(showtimeId).subscribe(showtime => {
-        this.showtime = showtime;
+        this.showtime = showtime || null;
         if (showtime) {
-          this.loadMovieDetails(showtime.movieId);
-          this.loadCinemaDetails(showtime.cinemaId);
+          this.movieService.getMovieById(showtime.movieId).subscribe(m => this.movie = m || null);
+          this.cinemaService.getCinemaById(showtime.cinemaId).subscribe(c => this.cinema = c || null);
         }
       });
     }
   }
 
-  loadMovieDetails(movieId: string): void {
-    this.movieService.getMovieById(movieId).subscribe(movie => {
-      this.movie = movie || null;
-    });
-  }
-
-  loadCinemaDetails(cinemaId: string): void {
-    this.cinemaService.getCinemaById(cinemaId).subscribe(cinema => {
-      this.cinema = cinema || null;
-    });
-  }
-
   calculateTotal(): void {
     const subtotal = this.seatsTotal + this.foodTotal;
-    this.total = subtotal + this.convenienceFee - this.couponDiscount;
+    this.total = Math.max(0, subtotal + this.convenienceFee - this.couponDiscount);
   }
 
   applyCoupon(): void {
     if (!this.couponCode.trim()) {
-      this.couponMessage = 'Please enter a coupon code';
+      this.couponMessage = 'Please enter a valid coupon code';
       this.couponValid = false;
       return;
     }
 
     const bookingAmount = this.seatsTotal + this.foodTotal;
-    this.offerService.validateCoupon(this.couponCode, bookingAmount).subscribe(result => {
+    this.offerService.validateCoupon(this.couponCode.trim().toUpperCase(), bookingAmount).subscribe(result => {
       if (result.valid) {
         this.couponValid = true;
         this.couponDiscount = result.discount;
         this.appliedCoupon = result.offer;
-        this.couponMessage = `Coupon applied! You saved $${result.discount}`;
+        this.couponMessage = `🎉 Coupon applied! You saved ₹${result.discount}`;
         this.calculateTotal();
       } else {
         this.couponValid = false;
         this.couponDiscount = 0;
         this.appliedCoupon = null;
-        this.couponMessage = 'Invalid or expired coupon code';
+        this.couponMessage = 'Invalid or expired promo code. Try FIRSTFREE or WEEKEND50';
         this.calculateTotal();
       }
     });
@@ -181,21 +184,20 @@ export class CheckoutComponent implements OnInit {
     this.isProcessing = true;
     this.closeConfirmModal();
 
-    // Simulate payment processing
     setTimeout(() => {
       this.createBooking();
-    }, 2000);
+    }, 1500);
   }
 
   createBooking(): void {
-    if (!this.currentUser || !this.showtime || !this.movie || !this.cinema) {
+    if (!this.showtime || !this.movie || !this.cinema) {
       this.isProcessing = false;
-      alert('Missing required information');
+      alert('Missing required booking details. Please try again.');
       return;
     }
 
     const bookingData = {
-      userId: this.currentUser.id,
+      userId: this.currentUser ? this.currentUser.id : 'user-guest',
       movieId: this.movie.id,
       movieTitle: this.movie.title,
       moviePoster: this.movie.poster,
@@ -224,8 +226,8 @@ export class CheckoutComponent implements OnInit {
 
   getPaymentMethodLabel(method: string): string {
     switch (method) {
-      case 'upi': return 'UPI';
-      case 'card': return 'Credit/Debit Card';
+      case 'upi': return 'Instant UPI (GPay / PhonePe / Paytm / BHIM)';
+      case 'card': return 'Credit / Debit Card (Visa / Mastercard / RuPay)';
       case 'netbanking': return 'Net Banking';
       default: return method;
     }
@@ -233,5 +235,11 @@ export class CheckoutComponent implements OnInit {
 
   getSelectedSeatsList(): string {
     return this.selectedSeats.map(s => s.row + s.number).join(', ');
+  }
+
+  formatDate(dateStr?: string): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
   }
 }

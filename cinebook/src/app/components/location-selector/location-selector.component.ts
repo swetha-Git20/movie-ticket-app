@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
@@ -10,19 +10,22 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './location-selector.component.html',
   styleUrls: ['./location-selector.component.css']
 })
-export class LocationSelectorComponent {
+export class LocationSelectorComponent implements OnInit {
   @Output() close = new EventEmitter<void>();
+  @Output() citySelected = new EventEmitter<string>();
   
   isOpen = false;
-  selectedCity = '';
+  selectedCity = 'Chennai';
   searchQuery = '';
   
-  cities = ['New York', 'Los Angeles', 'San Francisco', 'Chicago', 'Houston', 'Miami', 'Seattle', 'Boston'];
-  popularCities = ['New York', 'Los Angeles', 'San Francisco', 'Chicago'];
+  cities = ['Chennai', 'Pondicherry', 'Trichy', 'Vellore', 'Ranipet', 'Coimbatore', 'Madurai', 'Salem', 'Tirunelveli', 'Erode'];
+  popularCities = ['Chennai', 'Pondicherry', 'Trichy', 'Vellore', 'Ranipet'];
 
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService) {}
+
+  ngOnInit(): void {
     this.authService.getSelectedCity().subscribe(city => {
-      this.selectedCity = city;
+      this.selectedCity = city || 'Chennai';
     });
   }
 
@@ -45,6 +48,7 @@ export class LocationSelectorComponent {
   selectCity(city: string): void {
     this.selectedCity = city;
     this.authService.setSelectedCity(city);
+    this.citySelected.emit(city);
     this.closeSelector();
   }
 
@@ -53,7 +57,7 @@ export class LocationSelectorComponent {
       return this.cities;
     }
     return this.cities.filter(city => 
-      city.toLowerCase().includes(this.searchQuery.toLowerCase())
+      city.toLowerCase().includes(this.searchQuery.toLowerCase().trim())
     );
   }
 }

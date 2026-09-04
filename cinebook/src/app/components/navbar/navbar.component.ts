@@ -14,8 +14,8 @@ import { LocationSelectorComponent } from '../location-selector/location-selecto
 })
 export class NavbarComponent implements OnInit {
   isMenuOpen = false;
-  selectedCity$ = this.authService.getSelectedCity();
-  currentUser$ = this.authService.getCurrentUser();
+  selectedCity$!: any;
+  currentUser$!: any;
 
   @ViewChild(SearchOverlayComponent) searchOverlay!: SearchOverlayComponent;
   @ViewChild(LocationSelectorComponent) locationSelector!: LocationSelectorComponent;

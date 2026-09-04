@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of, delay } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { delay } from 'rxjs/operators';
 import { Booking } from '../models/booking.model';
-import { Seat, SeatSelection } from '../models/seat.model';
+import { Seat } from '../models/seat.model';
 import { CartItem } from '../models/food.model';
 
 @Injectable({
@@ -9,17 +10,21 @@ import { CartItem } from '../models/food.model';
 })
 export class BookingService {
   private bookings: Booking[] = [];
-  private bookingsSubject = new BehaviorSubject<Booking[]>(this.bookings);
+  private bookingsSubject = new BehaviorSubject<Booking[]>([]);
   private selectedSeats: Seat[] = [];
   private selectedSeatsSubject = new BehaviorSubject<Seat[]>([]);
   private currentShowtimeId: string | null = null;
   private currentShowtimeIdSubject = new BehaviorSubject<string | null>(null);
 
-  // Convenience fee constant
-  private readonly CONVENIENCE_FEE = 2.50;
+  // Convenience fee in Indian Rupees
+  private readonly CONVENIENCE_FEE = 30;
 
   constructor() {
     this.loadFromLocalStorage();
+  }
+
+  getConvenienceFee(): number {
+    return this.CONVENIENCE_FEE;
   }
 
   // Seat selection management
@@ -43,6 +48,10 @@ export class BookingService {
 
   getSelectedSeats(): Observable<Seat[]> {
     return this.selectedSeatsSubject.asObservable();
+  }
+
+  getSelectedSeatsValue(): Seat[] {
+    return this.selectedSeats;
   }
 
   clearSelectedSeats(): void {
@@ -94,7 +103,7 @@ export class BookingService {
     const seatsTotal = this.selectedSeats.reduce((sum, seat) => sum + seat.price, 0);
     const foodTotal = bookingData.foodCart.reduce((sum, item) => sum + (item.foodItem.price * item.quantity), 0);
     const subtotal = seatsTotal + foodTotal;
-    const total = subtotal + this.CONVENIENCE_FEE - bookingData.couponDiscount;
+    const total = Math.max(0, subtotal + this.CONVENIENCE_FEE - bookingData.couponDiscount);
 
     const booking: Booking = {
       id: this.generateBookingId(),
@@ -122,41 +131,41 @@ export class BookingService {
       couponCode: bookingData.couponCode
     };
 
-    this.bookings.push(booking);
+    this.bookings.unshift(booking);
     this.bookingsSubject.next(this.bookings);
     this.saveToLocalStorage();
 
     // Clear seat selection after booking
     this.clearSelectedSeats();
 
-    return of(booking).pipe(delay(500));
+    return of(booking).pipe(delay(400));
   }
 
   getUserBookings(userId: string): Observable<Booking[]> {
     const userBookings = this.bookings.filter(b => b.userId === userId);
-    return of(userBookings.sort((a, b) => new Date(b.bookingDate).getTime() - new Date(a.bookingDate).getTime())).pipe(delay(300));
+    return of(userBookings.sort((a, b) => new Date(b.bookingDate).getTime() - new Date(a.bookingDate).getTime())).pipe(delay(200));
   }
 
   getBookingById(bookingId: string): Observable<Booking | undefined> {
-    return of(this.bookings.find(b => b.id === bookingId)).pipe(delay(200));
+    return of(this.bookings.find(b => b.id === bookingId)).pipe(delay(150));
   }
 
   cancelBooking(bookingId: string): Observable<{ success: boolean; message: string }> {
     const booking = this.bookings.find(b => b.id === bookingId);
     
     if (!booking) {
-      return of({ success: false, message: 'Booking not found' }).pipe(delay(300));
+      return of({ success: false, message: 'Booking not found' }).pipe(delay(200));
     }
 
     if (booking.status === 'cancelled') {
-      return of({ success: false, message: 'Booking already cancelled' }).pipe(delay(300));
+      return of({ success: false, message: 'Booking already cancelled' }).pipe(delay(200));
     }
 
     booking.status = 'cancelled';
     this.bookingsSubject.next(this.bookings);
     this.saveToLocalStorage();
 
-    return of({ success: true, message: 'Booking cancelled successfully' }).pipe(delay(300));
+    return of({ success: true, message: 'Booking cancelled successfully' }).pipe(delay(200));
   }
 
   // Seat generation for showtime
@@ -168,24 +177,27 @@ export class BookingService {
     rows.forEach((row, rowIndex) => {
       for (let i = 1; i <= seatsPerRow; i++) {
         let type: 'standard' | 'premium' | 'vip' = 'standard';
-        let price = 10;
+        let price = 150; // Standard price ₹150
 
-        if (rowIndex >= 0 && rowIndex <= 2) {
+        if (rowIndex <= 1) {
           type = 'vip';
-          price = 18;
-        } else if (rowIndex >= 3 && rowIndex <= 5) {
+          price = 280; // VIP Recliner ₹280
+        } else if (rowIndex <= 4) {
           type = 'premium';
-          price = 14;
+          price = 220; // Premium ₹220
+        } else {
+          type = 'standard';
+          price = 150; // Standard ₹150
         }
 
-        // Randomly occupy some seats
-        const status = Math.random() < 0.2 ? 'occupied' : 'available';
+        // Randomly occupy some seats realistically (~18%)
+        const isOccupied = (rowIndex * 13 + i * 7) % 6 === 0;
 
         seats.push({
           row,
           number: i,
           price,
-          status,
+          status: isOccupied ? 'occupied' : 'available',
           type
         });
       }
@@ -201,17 +213,21 @@ export class BookingService {
   }
 
   private loadFromLocalStorage(): void {
-    const stored = localStorage.getItem('cinebook_bookings');
+    const stored = localStorage.getItem('cinebook_bookings_v2');
     if (stored) {
-      this.bookings = JSON.parse(stored);
-      this.bookingsSubject.next(this.bookings);
+      try {
+        this.bookings = JSON.parse(stored);
+        this.bookingsSubject.next(this.bookings);
+      } catch (e) {
+        this.bookings = [];
+      }
     }
 
     this.loadSeatSelectionFromStorage();
   }
 
   private saveToLocalStorage(): void {
-    localStorage.setItem('cinebook_bookings', JSON.stringify(this.bookings));
+    localStorage.setItem('cinebook_bookings_v2', JSON.stringify(this.bookings));
   }
 
   private saveSeatSelectionToStorage(): void {
@@ -219,17 +235,21 @@ export class BookingService {
       seats: this.selectedSeats,
       showtimeId: this.currentShowtimeId
     };
-    localStorage.setItem('cinebook_seat_selection', JSON.stringify(selectionData));
+    localStorage.setItem('cinebook_seat_selection_v2', JSON.stringify(selectionData));
   }
 
   private loadSeatSelectionFromStorage(): void {
-    const stored = localStorage.getItem('cinebook_seat_selection');
+    const stored = localStorage.getItem('cinebook_seat_selection_v2');
     if (stored) {
-      const selectionData = JSON.parse(stored);
-      this.selectedSeats = selectionData.seats || [];
-      this.currentShowtimeId = selectionData.showtimeId || null;
-      this.selectedSeatsSubject.next(this.selectedSeats);
-      this.currentShowtimeIdSubject.next(this.currentShowtimeId);
+      try {
+        const selectionData = JSON.parse(stored);
+        this.selectedSeats = selectionData.seats || [];
+        this.currentShowtimeId = selectionData.showtimeId || null;
+        this.selectedSeatsSubject.next(this.selectedSeats);
+        this.currentShowtimeIdSubject.next(this.currentShowtimeId);
+      } catch (e) {
+        this.selectedSeats = [];
+      }
     }
   }
 }

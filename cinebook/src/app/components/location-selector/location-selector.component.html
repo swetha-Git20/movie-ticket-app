@@ -1,7 +1,10 @@
 <div class="location-selector" [class.active]="isOpen" (click)="onBackdropClick($event)">
   <div class="location-container" (click)="$event.stopPropagation()">
     <div class="location-header">
-      <h2 class="location-title">Select Your City</h2>
+      <div class="title-with-icon">
+        <span class="material-icons header-loc-icon">location_on</span>
+        <h2 class="location-title">Select Your City</h2>
+      </div>
       <button class="close-btn" (click)="closeSelector()">
         <span class="material-icons">close</span>
       </button>
@@ -12,37 +15,27 @@
       <input 
         type="text" 
         class="search-input" 
-        placeholder="Search cities..." 
+        placeholder="Search Tamil Nadu cities (Chennai, Vellore, Trichy...)" 
         [(ngModel)]="searchQuery"
       />
     </div>
     
     <div class="location-content">
-      <div class="section-title">Popular Cities</div>
+      <div class="section-title">Major Tamil Nadu Locations</div>
       <div class="cities-grid popular">
         <button 
-          *ngFor="let city of popularCities"
+          *ngFor="let city of (searchQuery ? filteredCities : cities)"
           class="city-chip"
           [class.selected]="selectedCity === city"
           (click)="selectCity(city)">
-          {{ city }}
-        </button>
-      </div>
-      
-      <div class="section-title" *ngIf="searchQuery">All Cities</div>
-      <div class="cities-grid all" *ngIf="searchQuery">
-        <button 
-          *ngFor="let city of filteredCities"
-          class="city-chip"
-          [class.selected]="selectedCity === city"
-          (click)="selectCity(city)">
+          <span class="material-icons chip-pin">pin_drop</span>
           {{ city }}
         </button>
       </div>
       
       <div class="no-results" *ngIf="searchQuery && filteredCities.length === 0">
         <span class="material-icons no-results-icon">location_off</span>
-        <p>No cities found</p>
+        <p>No cities found matching "{{ searchQuery }}"</p>
       </div>
     </div>
   </div>

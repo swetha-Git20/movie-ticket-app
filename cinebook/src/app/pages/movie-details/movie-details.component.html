@@ -9,118 +9,187 @@
     <div class="header-content">
       <button class="back-btn" (click)="router.navigate(['/'])">
         <span class="material-icons">arrow_back</span>
+        Back to Movies
       </button>
       
-      <div class="movie-poster-container">
-        <img class="movie-poster" [src]="movie.poster" [alt]="movie.title" />
-      </div>
-      
-      <div class="movie-info-header">
-        <h1 class="movie-title">{{ movie.title }}</h1>
-        <div class="movie-meta">
-          <span class="rating-badge">
-            <span class="material-icons">star</span>
-            {{ movie.rating }}
-          </span>
-          <span class="meta-item">{{ movie.duration }}</span>
-          <span class="meta-item">{{ movie.language }}</span>
+      <div class="movie-banner-flex">
+        <div class="movie-poster-container">
+          <img class="movie-poster" [src]="movie.poster" [alt]="movie.title" />
+          <span class="poster-lang-tag">{{ movie.language }}</span>
         </div>
-        <div class="genre-tags">
-          <span class="genre-tag" *ngFor="let genre of movie.genre">{{ genre }}</span>
+        
+        <div class="movie-info-header">
+          <div class="movie-tag-group">
+            <span class="rating-badge">
+              <span class="material-icons">star</span>
+              {{ movie.rating }} / 5.0
+            </span>
+            <span class="format-tag" *ngFor="let fmt of movie.format">{{ fmt }}</span>
+          </div>
+
+          <h1 class="movie-title">{{ movie.title }}</h1>
+          
+          <div class="movie-meta-row">
+            <span class="meta-pill"><span class="material-icons">schedule</span> {{ movie.duration }}</span>
+            <span class="meta-pill"><span class="material-icons">translate</span> {{ movie.language }}</span>
+            <span class="meta-pill"><span class="material-icons">calendar_today</span> Release: {{ movie.releaseDate }}</span>
+          </div>
+
+          <div class="genre-tags">
+            <span class="genre-tag" *ngFor="let genre of movie.genre">{{ genre }}</span>
+          </div>
+
+          <div class="header-cta-group">
+            <button class="watch-trailer-btn" (click)="openTrailer()">
+              <span class="material-icons">play_circle_filled</span>
+              Watch Official Trailer
+            </button>
+          </div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- Booking Flow Stepper Bar -->
+  <section class="details-flow-bar">
+    <div class="flow-pills-row">
+      <span class="flow-pill done">1. City: {{ selectedCity }}</span>
+      <span class="flow-sep">→</span>
+      <span class="flow-pill done">2. Date: {{ formatDate(selectedDate) }}</span>
+      <span class="flow-sep">→</span>
+      <span class="flow-pill done">3. Movie: {{ movie.title }}</span>
+      <span class="flow-sep">→</span>
+      <span class="flow-pill current">4. Select Theatre & Time</span>
+      <span class="flow-sep">→</span>
+      <span class="flow-pill">5. Seats</span>
+      <span class="flow-sep">→</span>
+      <span class="flow-pill">6. Food</span>
+      <span class="flow-sep">→</span>
+      <span class="flow-pill">7. Payment</span>
     </div>
   </section>
 
   <!-- Movie Content -->
   <section class="movie-content">
     <div class="content-grid">
-      <!-- Left Column -->
+      <!-- Left Column: Booking & Details -->
       <div class="main-content">
-        <!-- Synopsis -->
-        <div class="content-section">
-          <h2 class="section-heading">Synopsis</h2>
-          <p class="synopsis">{{ movie.synopsis }}</p>
-        </div>
-
-        <!-- Cast & Crew -->
-        <div class="content-section">
-          <h2 class="section-heading">Cast & Crew</h2>
-          <div class="cast-list">
-            <div class="cast-item">
-              <span class="cast-label">Director:</span>
-              <span class="cast-name">{{ movie.director }}</span>
-            </div>
-            <div class="cast-item">
-              <span class="cast-label">Cast:</span>
-              <span class="cast-name">{{ movie.cast.join(', ') }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Showtime Selection -->
-        <div class="content-section">
-          <h2 class="section-heading">Book Tickets</h2>
-          
-          <div class="booking-controls">
-            <div class="control-group">
-              <label class="control-label">Select Cinema</label>
-              <select class="control-select" [(ngModel)]="selectedCinema" (change)="onCinemaChange(selectedCinema)">
-                <option value="">Choose cinema</option>
-                <option *ngFor="let cinema of availableCinemas" [value]="cinema.id">{{ cinema.name }}</option>
-              </select>
+        <!-- Interactive Booking Card -->
+        <div class="booking-box card-glass">
+          <div class="booking-box-header">
+            <div class="title-icon-group">
+              <span class="material-icons card-icon">confirmation_number</span>
+              <h2 class="section-heading">Select Date, Theatre & Showtime</h2>
             </div>
             
-            <div class="control-group">
-              <label class="control-label">Select Date</label>
-              <select class="control-select" [(ngModel)]="selectedDate" (change)="onDateChange(selectedDate)" [disabled]="!selectedCinema">
-                <option value="">Choose date</option>
-                <option *ngFor="let date of availableDates" [value]="date">{{ formatDate(date) }}</option>
+            <!-- City Switcher in Details -->
+            <div class="city-selector-inline">
+              <span class="material-icons">location_on</span>
+              <select class="city-inline-select" [(ngModel)]="selectedCity" (change)="onCityChange(selectedCity)">
+                <option *ngFor="let city of availableCities" [value]="city">{{ city }}</option>
               </select>
             </div>
           </div>
 
-          <div class="showtimes-list" *ngIf="availableShowtimes.length > 0">
-            <h3 class="showtimes-title">Available Showtimes</h3>
-            <div class="showtimes-grid">
+          <!-- Date Selector Strip -->
+          <div class="date-selection-container">
+            <div class="date-scroll-list">
               <button 
-                *ngFor="let showtime of availableShowtimes"
-                class="showtime-btn"
-                [class.selected]="selectedShowtime?.id === showtime.id"
-                (click)="selectShowtime(showtime)">
-                <span class="showtime-time">{{ showtime.time }}</span>
-                <span class="showtime-format">{{ showtime.format }}</span>
-                <span class="showtime-price">${{ showtime.price }}</span>
+                *ngFor="let d of dateOptions"
+                type="button"
+                class="detail-date-pill"
+                [class.active]="selectedDate === d.fullDate"
+                (click)="onDateChange(d.fullDate)">
+                <span class="date-day">{{ d.dayName }}</span>
+                <span class="date-num">{{ d.dayNumber }}</span>
+                <span class="date-mon">{{ d.monthName }}</span>
               </button>
             </div>
           </div>
 
-          <div class="no-showtimes" *ngIf="selectedCinema && selectedDate && availableShowtimes.length === 0">
-            <p>No showtimes available for this selection.</p>
+          <!-- Cinema Selector Dropdown -->
+          <div class="cinema-selector-group">
+            <label class="group-label">Theatres in {{ selectedCity }} ({{ filteredCinemas.length }} available):</label>
+            <div class="cinema-chips-row">
+              <button 
+                *ngFor="let cinema of filteredCinemas"
+                type="button"
+                class="cinema-chip-btn"
+                [class.active]="selectedCinema === cinema.id"
+                (click)="onCinemaChange(cinema.id)">
+                <span class="material-icons">theater_comedy</span>
+                <div class="chip-info">
+                  <span class="chip-name">{{ cinema.name }}</span>
+                  <span class="chip-addr">{{ cinema.address }}</span>
+                </div>
+              </button>
+            </div>
           </div>
 
-          <button 
-            class="book-tickets-btn"
-            [disabled]="!selectedShowtime"
-            (click)="proceedToSeatSelection()">
-            <span class="material-icons">confirmation_number</span>
-            Select Seats
-          </button>
+          <!-- Showtimes Grid -->
+          <div class="showtimes-container" *ngIf="availableShowtimes.length > 0">
+            <h3 class="showtimes-heading">
+              <span class="material-icons">schedule</span>
+              Available Showtimes & Ticket Prices
+            </h3>
+            
+            <div class="showtimes-grid">
+              <button 
+                *ngFor="let showtime of availableShowtimes"
+                type="button"
+                class="showtime-card"
+                [class.selected]="selectedShowtime?.id === showtime.id"
+                (click)="selectShowtime(showtime)">
+                <span class="st-time">{{ showtime.time }}</span>
+                <span class="st-format">{{ showtime.format }}</span>
+                <span class="st-price">₹{{ showtime.price }}</span>
+                <span class="st-seats">{{ showtime.availableSeats }} seats left</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="no-showtimes-alert" *ngIf="availableShowtimes.length === 0">
+            <span class="material-icons">info</span>
+            <p>No showtimes currently scheduled for this theatre on {{ formatDate(selectedDate) }}. Please choose another theatre or date.</p>
+          </div>
+
+          <!-- Proceed CTA Button -->
+          <div class="proceed-cta-row">
+            <button 
+              class="proceed-seats-btn"
+              [disabled]="!selectedShowtime"
+              (click)="proceedToSeatSelection()">
+              <span class="material-icons">event_seat</span>
+              {{ selectedShowtime ? 'Proceed to Seat Selection (Showtime: ' + selectedShowtime.time + ')' : 'Please Select a Showtime Slot Above' }}
+            </button>
+          </div>
         </div>
 
-        <!-- Trailer -->
-        <div class="content-section">
-          <h2 class="section-heading">Trailer</h2>
-          <button class="trailer-btn" (click)="openTrailer()">
-            <span class="material-icons">play_circle</span>
-            Watch Trailer
-          </button>
+        <!-- Synopsis -->
+        <div class="content-section card-glass">
+          <h2 class="section-heading">Synopsis</h2>
+          <p class="synopsis-text">{{ movie.synopsis }}</p>
+        </div>
+
+        <!-- Cast & Crew -->
+        <div class="content-section card-glass">
+          <h2 class="section-heading">Cast & Crew</h2>
+          <div class="cast-grid">
+            <div class="cast-card">
+              <span class="cast-role">Director</span>
+              <span class="cast-name">{{ movie.director }}</span>
+            </div>
+            <div class="cast-card" *ngFor="let actor of movie.cast">
+              <span class="cast-role">Starring Cast</span>
+              <span class="cast-name">{{ actor }}</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Right Column - Recommended -->
+      <!-- Right Column - Recommended Movies -->
       <div class="sidebar">
-        <h2 class="section-heading">Recommended Movies</h2>
+        <h3 class="sidebar-heading">You May Also Like</h3>
         <div class="recommended-grid">
           <app-movie-card 
             *ngFor="let recMovie of recommendedMovies"
@@ -142,26 +211,21 @@
       <div class="skeleton-meta"></div>
     </div>
   </div>
-  <div class="skeleton-content">
-    <div class="skeleton-text"></div>
-    <div class="skeleton-text"></div>
-    <div class="skeleton-text"></div>
-  </div>
 </main>
 
 <!-- Trailer Modal -->
-<app-modal [isOpen]="showTrailerModal" [title]="'Movie Trailer'" (close)="closeTrailer()">
-  <div class="trailer-container">
+<app-modal [isOpen]="showTrailerModal" [title]="movie?.title ? movie!.title + ' - Official Trailer' : 'Movie Trailer'" (close)="closeTrailer()">
+  <div class="trailer-container" *ngIf="showTrailerModal">
     <iframe 
-      *ngIf="movie?.trailerUrl"
-      [src]="movie?.trailerUrl || ''"
+      *ngIf="safeTrailerUrl"
+      [src]="safeTrailerUrl"
       frameborder="0"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
       allowfullscreen>
     </iframe>
-    <div class="trailer-placeholder" *ngIf="!movie?.trailerUrl">
+    <div class="trailer-placeholder" *ngIf="!safeTrailerUrl">
       <span class="material-icons">movie</span>
-      <p>Trailer not available</p>
+      <p>Trailer stream unavailable</p>
     </div>
   </div>
 </app-modal>

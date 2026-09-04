@@ -68,6 +68,8 @@ export class SeatSelectionComponent implements OnInit {
         this.loadMovieDetails(this.showtime.movieId);
         this.loadCinemaDetails(this.showtime.cinemaId);
         this.generateSeats();
+      } else {
+        this.router.navigate(['/showtimes']);
       }
     });
   }
@@ -98,7 +100,7 @@ export class SeatSelectionComponent implements OnInit {
       this.bookingService.deselectSeat(seat);
     } else {
       if (this.selectedSeats.length >= this.maxSeats) {
-        alert(`You can only select up to ${this.maxSeats} seats`);
+        alert(`You can select a maximum of ${this.maxSeats} seats per booking.`);
         return;
       }
       this.bookingService.selectSeat(seat);
@@ -115,28 +117,27 @@ export class SeatSelectionComponent implements OnInit {
 
   proceedToFood(): void {
     if (this.selectedSeats.length === 0) {
-      alert('Please select at least one seat');
+      alert('Please select at least one seat to proceed.');
       return;
     }
     this.router.navigate(['/food']);
   }
 
   goBack(): void {
-    this.bookingService.clearSelectedSeats();
     this.router.navigate(['/showtimes']);
   }
 
   getSeatPriceLabel(type: string): string {
     switch (type) {
-      case 'vip': return '$18';
-      case 'premium': return '$14';
-      default: return '$10';
+      case 'vip': return '₹280';
+      case 'premium': return '₹220';
+      default: return '₹150';
     }
   }
 
   getSeatTypeLabel(type: string): string {
     switch (type) {
-      case 'vip': return 'VIP';
+      case 'vip': return 'VIP Recliner';
       case 'premium': return 'Premium';
       default: return 'Standard';
     }
@@ -144,5 +145,11 @@ export class SeatSelectionComponent implements OnInit {
 
   getSelectedSeatsList(): string {
     return this.selectedSeats.map(s => s.row + s.number).join(', ');
+  }
+
+  formatDate(dateStr?: string): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
   }
 }
