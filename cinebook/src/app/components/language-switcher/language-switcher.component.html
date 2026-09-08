@@ -1,14 +1,11 @@
-<div class="language-switcher-container">
-  <div class="language-pill-group">
+<div class="language-switcher">
+  <div class="language-tabs">
     <button 
-      *ngFor="let lang of languages" 
-      type="button"
-      class="language-pill-btn" 
-      [class.active]="selectedLanguage === lang.key"
-      (click)="selectLanguage(lang.key)">
-      <span class="material-icons pill-icon">{{ lang.icon }}</span>
-      <span class="pill-text">{{ lang.label }}</span>
-      <span class="active-indicator" *ngIf="selectedLanguage === lang.key"></span>
+      *ngFor="let language of languages"
+      class="language-tab"
+      [class.active]="selectedLanguage === language"
+      (click)="selectLanguage(language)">
+      {{ language }}
     </button>
   </div>
 </div>

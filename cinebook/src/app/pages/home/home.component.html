@@ -130,31 +130,13 @@
         <!-- 2. Date Selection -->
         <div class="quick-book-field">
           <label class="field-label">2. Booking Date</label>
-          <div class="select-wrapper">
-            <span class="input-icon material-icons">calendar_month</span>
-            <input 
-              type="date" 
-              class="field-input date-picker-input" 
-              [min]="minBookingDate" 
-              [max]="maxBookingDate"
-              [(ngModel)]="selectedDate" 
-              (change)="onDateChange(selectedDate)" 
-            />
-          </div>
+          <app-date-picker (dateChange)="onDateChange($event)"></app-date-picker>
         </div>
 
         <!-- 3. Language Filter in Wizard -->
         <div class="quick-book-field">
           <label class="field-label">3. Language</label>
-          <div class="select-wrapper">
-            <span class="input-icon material-icons">translate</span>
-            <select class="field-select" [(ngModel)]="selectedLanguage" (change)="onLanguageChanged(selectedLanguage)">
-              <option value="All">All Languages</option>
-              <option value="Tamil">Tamil</option>
-              <option value="English">English</option>
-            </select>
-            <span class="field-icon material-icons">expand_more</span>
-          </div>
+          <app-language-switcher [selectedLanguage]="selectedLanguage" (languageChange)="onLanguageChanged($event)"></app-language-switcher>
         </div>
 
         <!-- 4. Movie Selection -->
@@ -253,10 +235,7 @@
   <section class="language-selection-section">
     <div class="section-container text-center">
       <h3 class="sub-heading">Browse Movies by Language</h3>
-      <app-language-switcher 
-        [selectedLanguage]="selectedLanguage" 
-        (languageChange)="onLanguageChanged($event)">
-      </app-language-switcher>
+      <app-language-switcher [selectedLanguage]="selectedLanguage" (languageChange)="onLanguageChanged($event)"></app-language-switcher>
     </div>
   </section>
 

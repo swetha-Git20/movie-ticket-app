@@ -12,11 +12,7 @@ export class LanguageSwitcherComponent {
   @Input() selectedLanguage: string = 'All';
   @Output() languageChange = new EventEmitter<string>();
   
-  languages = [
-    { key: 'All', label: 'All Movies', icon: 'movie_filter' },
-    { key: 'Tamil', label: 'Tamil Movies', icon: 'translate' },
-    { key: 'English', label: 'English Movies', icon: 'language' }
-  ];
+  languages = ['All', 'Tamil', 'English'];
 
   selectLanguage(language: string): void {
     this.selectedLanguage = language;

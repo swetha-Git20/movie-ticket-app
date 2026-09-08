@@ -18,7 +18,7 @@ export class LocationSelectorComponent implements OnInit {
   selectedCity = 'Chennai';
   searchQuery = '';
   
-  cities = ['Chennai', 'Pondicherry', 'Trichy', 'Vellore', 'Ranipet', 'Coimbatore', 'Madurai', 'Salem', 'Tirunelveli', 'Erode'];
+  cities = ['Chennai', 'Pondicherry', 'Trichy', 'Vellore', 'Ranipet'];
   popularCities = ['Chennai', 'Pondicherry', 'Trichy', 'Vellore', 'Ranipet'];
 
   constructor(private authService: AuthService) {}

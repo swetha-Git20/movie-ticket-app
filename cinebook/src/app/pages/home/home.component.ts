@@ -13,6 +13,7 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { MovieCardComponent } from '../../components/movie-card/movie-card.component';
 import { LanguageSwitcherComponent } from '../../components/language-switcher/language-switcher.component';
+import { DatePickerComponent } from '../../components/date-picker/date-picker.component';
 
 export interface DateOption {
   fullDate: string;
@@ -31,7 +32,8 @@ export interface DateOption {
     NavbarComponent,
     FooterComponent,
     MovieCardComponent,
-    LanguageSwitcherComponent
+    LanguageSwitcherComponent,
+    DatePickerComponent
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
@@ -43,17 +45,15 @@ export class HomeComponent implements OnInit {
   featuredMovie: Movie | null = null;
   isLoading = true;
   
-  // Language switcher
-  selectedLanguage = 'All';
-  
   // Tamil Nadu Cities & Cinemas
   availableCities: string[] = [];
   availableCinemas: Cinema[] = [];
   filteredCinemasForCity: Cinema[] = [];
   
-  // Quick Book & Flow State
+  // Quick Book & Flow State - Updated for new flow: City → Date → Language → Movie → Theatre → Show Time
   selectedCity = 'Chennai';
   selectedDate = '';
+  selectedLanguage = 'All';
   selectedMovie = '';
   selectedCinema = '';
   selectedShowtime = '';
@@ -66,7 +66,7 @@ export class HomeComponent implements OnInit {
   
   // Genre Filter state
   activeFilter = 'All';
-  filters = ['All', 'Action', 'Drama', 'Sci-Fi', 'Crime', 'Comedy', 'Fantasy', 'Biography'];
+  filters = ['All', 'Action', 'Drama', 'Sci-Fi', 'Thriller', 'Comedy', 'Romance', 'History'];
   
   // Carousel state
   currentSlide = 0;
@@ -78,7 +78,10 @@ export class HomeComponent implements OnInit {
     private showtimeService: ShowtimeService,
     private authService: AuthService,
     public router: Router
-  ) {}
+  ) {
+    // Initialize date on component creation
+    this.initDates();
+  }
 
   ngOnInit(): void {
     this.initDates();
@@ -129,7 +132,7 @@ export class HomeComponent implements OnInit {
     });
 
     this.cinemaService.getCities().subscribe(cities => {
-      this.availableCities = cities;
+      this.availableCities = cities.length > 0 ? cities : ['Chennai', 'Pondicherry', 'Trichy', 'Vellore', 'Ranipet'];
     });
 
     this.cinemaService.getCinemas().subscribe(cinemas => {
@@ -154,23 +157,19 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  setFilter(filter: string): void {
+    this.activeFilter = filter;
+    this.applyFiltersAndLanguage();
+  }
+
   onLanguageChanged(language: string): void {
     this.selectedLanguage = language;
     this.applyFiltersAndLanguage();
     
-    // If selected movie doesn't match language, reset it
-    if (this.selectedMovie) {
-      const movie = this.allNowShowing.find(m => m.id === this.selectedMovie);
-      if (movie && language !== 'All' && movie.language.toLowerCase() !== language.toLowerCase()) {
-        this.selectedMovie = '';
-        this.selectedShowtime = '';
-      }
-    }
-  }
-
-  setFilter(filter: string): void {
-    this.activeFilter = filter;
-    this.applyFiltersAndLanguage();
+    // Reset movie selection when language changes
+    this.selectedMovie = '';
+    this.selectedCinema = '';
+    this.selectedShowtime = '';
   }
 
   applyFiltersAndLanguage(): void {
@@ -215,11 +214,18 @@ export class HomeComponent implements OnInit {
 
   onDateChange(date: string): void {
     this.selectedDate = date;
+    // Reset movie selection when date changes
+    this.selectedMovie = '';
+    this.selectedCinema = '';
+    this.selectedShowtime = '';
     this.updateAvailableShowtimes();
   }
 
   onMovieChange(movieId: string): void {
     this.selectedMovie = movieId;
+    // Reset cinema and showtime when movie changes
+    this.selectedCinema = '';
+    this.selectedShowtime = '';
     this.updateAvailableShowtimes();
   }
 

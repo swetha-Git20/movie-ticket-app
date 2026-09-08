@@ -1,0 +1,29 @@
+<div class="date-picker">
+  <button class="date-selector" (click)="toggleCalendar()">
+    <span class="material-icons">calendar_today</span>
+    <span class="selected-date-text">{{ getDayLabel(selectedDate) }}</span>
+    <span class="material-icons dropdown-icon">expand_more</span>
+  </button>
+  
+  <div class="calendar-dropdown" [class.active]="showCalendar" (click)="$event.stopPropagation()">
+    <div class="calendar-header">
+      <h3 class="calendar-title">Select Date</h3>
+      <button class="close-btn" (click)="showCalendar = false">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    
+    <div class="calendar-dates">
+      <div 
+        *ngFor="let date of availableDates"
+        class="date-option"
+        [class.selected]="selectedDate === date"
+        [class.today]="isToday(date)"
+        [class.tomorrow]="isTomorrow(date)"
+        (click)="selectDate(date)">
+        <div class="date-label">{{ getDayLabel(date) }}</div>
+        <div class="date-full">{{ formatDate(date) }}</div>
+      </div>
+    </div>
+  </div>
+</div>
