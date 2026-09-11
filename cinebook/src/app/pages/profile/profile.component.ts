@@ -30,7 +30,7 @@ export class ProfileComponent implements OnInit {
   mobile = '';
   city = '';
   
-  cities = ['New York', 'Los Angeles', 'San Francisco', 'Chicago'];
+  cities: string[] = [];
   successMessage = '';
   errorMessage = '';
 
@@ -40,6 +40,7 @@ export class ProfileComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.cities = this.authService.getAvailableCities();
     this.authService.getCurrentUser().subscribe(user => {
       this.currentUser = user;
       if (!user) {

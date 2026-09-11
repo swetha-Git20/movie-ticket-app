@@ -13,39 +13,77 @@ export class AuthService {
   private selectedCitySubject = new BehaviorSubject<string>('Chennai');
 
   constructor() {
+    this.seedInitialUsers();
     this.loadFromLocalStorage();
+  }
+
+  // Seed default demo accounts if none exist
+  private seedInitialUsers(): void {
+    const existing = localStorage.getItem('cinebook_users');
+    if (!existing || JSON.parse(existing).length === 0) {
+      const defaultUsers: User[] = [
+        {
+          id: 'user-swetha',
+          name: 'Swetha R',
+          email: 'swetha@example.com',
+          mobile: '9876543210',
+          city: 'Chennai',
+          preferences: { preferredLanguage: 'Tamil', preferredFormat: 'IMAX 3D' }
+        },
+        {
+          id: 'user-demo-1',
+          name: 'Karthik Raja',
+          email: 'karthik@cinebook.com',
+          mobile: '9840123456',
+          city: 'Coimbatore',
+          preferences: { preferredLanguage: 'Tamil', preferredFormat: 'Dolby Atmos' }
+        },
+        {
+          id: 'user-demo-2',
+          name: 'Priya Sharma',
+          email: 'priya@cinebook.com',
+          mobile: '9790987654',
+          city: 'Madurai',
+          preferences: { preferredLanguage: 'Tamil', preferredFormat: '2D' }
+        }
+      ];
+      localStorage.setItem('cinebook_users', JSON.stringify(defaultUsers));
+    }
   }
 
   // Auth methods
   signup(userData: { name: string; email: string; mobile: string; password: string; city: string }): Observable<{ success: boolean; message: string; user?: User }> {
     const existingUsers = this.getStoredUsers();
-    const userExists = existingUsers.some(u => u.email.toLowerCase() === userData.email.toLowerCase() || u.mobile === userData.mobile);
+    const cleanEmail = (userData.email || '').trim().toLowerCase();
+    const cleanMobile = (userData.mobile || '').replace(/[\s-]/g, '').trim();
+
+    const userExists = existingUsers.some(u => u.email.toLowerCase() === cleanEmail || u.mobile === cleanMobile);
     
     if (userExists) {
-      return of({ success: false, message: 'User with this email or mobile already exists' }).pipe(delay(300));
+      return of({ success: false, message: 'User with this email or mobile already exists. Please sign in.' }).pipe(delay(250));
     }
 
-    if (!userData.name || !userData.email || !userData.mobile || !userData.password) {
-      return of({ success: false, message: 'All fields are required' }).pipe(delay(300));
+    if (!userData.name?.trim() || !cleanEmail || !cleanMobile || !userData.password) {
+      return of({ success: false, message: 'All fields are required' }).pipe(delay(200));
     }
 
-    if (!this.isValidEmail(userData.email)) {
-      return of({ success: false, message: 'Invalid email format' }).pipe(delay(300));
+    if (!this.isValidEmail(cleanEmail)) {
+      return of({ success: false, message: 'Invalid email format' }).pipe(delay(200));
     }
 
-    if (!this.isValidMobile(userData.mobile)) {
-      return of({ success: false, message: 'Invalid mobile number (10 digits required)' }).pipe(delay(300));
+    if (!this.isValidMobile(cleanMobile)) {
+      return of({ success: false, message: 'Invalid mobile number (10 digits required)' }).pipe(delay(200));
     }
 
     if (userData.password.length < 6) {
-      return of({ success: false, message: 'Password must be at least 6 characters' }).pipe(delay(300));
+      return of({ success: false, message: 'Password must be at least 6 characters' }).pipe(delay(200));
     }
 
     const newUser: User = {
       id: 'user-' + Date.now(),
-      name: userData.name,
-      email: userData.email,
-      mobile: userData.mobile,
+      name: userData.name.trim(),
+      email: cleanEmail,
+      mobile: cleanMobile,
       city: userData.city || 'Chennai',
       preferences: {
         preferredLanguage: 'Tamil',
@@ -56,6 +94,11 @@ export class AuthService {
     existingUsers.push(newUser);
     localStorage.setItem('cinebook_users', JSON.stringify(existingUsers));
     
+    // Save password
+    const passwords = this.getStoredPasswords();
+    passwords[cleanEmail] = userData.password;
+    localStorage.setItem('cinebook_passwords', JSON.stringify(passwords));
+
     // Auto login after signup
     this.currentUser = newUser;
     this.currentUserSubject.next(newUser);
@@ -64,34 +107,42 @@ export class AuthService {
     this.selectedCitySubject.next(newUser.city);
     localStorage.setItem('cinebook_selected_city', newUser.city);
 
-    return of({ success: true, message: 'Signup successful! Welcome to CineBook', user: newUser }).pipe(delay(300));
+    return of({ success: true, message: 'Signup successful! Welcome to CineBook', user: newUser }).pipe(delay(250));
   }
 
   login(credentials: { email: string; password: string }): Observable<{ success: boolean; message: string; user?: User }> {
-    const existingUsers = this.getStoredUsers();
-    const user = existingUsers.find(u => u.email.toLowerCase() === credentials.email.toLowerCase());
-    
-    if (!user) {
-      // Demo fallback user if fresh install
-      if (credentials.email && credentials.password.length >= 6) {
-        const demoUser: User = {
-          id: 'user-demo',
-          name: credentials.email.split('@')[0],
-          email: credentials.email,
-          mobile: '9876543210',
-          city: 'Chennai',
-          preferences: { preferredLanguage: 'Tamil', preferredFormat: '2D' }
-        };
-        this.currentUser = demoUser;
-        this.currentUserSubject.next(demoUser);
-        localStorage.setItem('cinebook_current_user', JSON.stringify(demoUser));
-        return of({ success: true, message: 'Login successful', user: demoUser }).pipe(delay(300));
-      }
-      return of({ success: false, message: 'User not found. Please sign up or check email.' }).pipe(delay(300));
+    const cleanEmail = (credentials.email || '').trim().toLowerCase();
+    const cleanPassword = credentials.password || '';
+
+    if (!cleanEmail || !cleanPassword) {
+      return of({ success: false, message: 'Please enter both email and password' }).pipe(delay(200));
     }
 
-    if (!credentials.password || credentials.password.length < 6) {
-      return of({ success: false, message: 'Invalid credentials. Password must be at least 6 characters.' }).pipe(delay(300));
+    if (!this.isValidEmail(cleanEmail)) {
+      return of({ success: false, message: 'Invalid email format' }).pipe(delay(200));
+    }
+
+    if (cleanPassword.length < 6) {
+      return of({ success: false, message: 'Password must be at least 6 characters.' }).pipe(delay(200));
+    }
+
+    const existingUsers = this.getStoredUsers();
+    let user = existingUsers.find(u => u.email.toLowerCase() === cleanEmail);
+    
+    // If not in stored users, check or create demo user dynamically
+    if (!user) {
+      const demoName = cleanEmail.split('@')[0].replace(/[._]/g, ' ');
+      const capitalizedName = demoName.charAt(0).toUpperCase() + demoName.slice(1);
+      user = {
+        id: 'user-' + Date.now(),
+        name: capitalizedName || 'CineBook Member',
+        email: cleanEmail,
+        mobile: '9876543210',
+        city: 'Chennai',
+        preferences: { preferredLanguage: 'Tamil', preferredFormat: '2D' }
+      };
+      existingUsers.push(user);
+      localStorage.setItem('cinebook_users', JSON.stringify(existingUsers));
     }
 
     this.currentUser = user;
@@ -103,7 +154,7 @@ export class AuthService {
       localStorage.setItem('cinebook_selected_city', user.city);
     }
 
-    return of({ success: true, message: 'Login successful', user }).pipe(delay(300));
+    return of({ success: true, message: 'Login successful! Welcome back', user }).pipe(delay(250));
   }
 
   logout(): void {
@@ -122,6 +173,12 @@ export class AuthService {
 
   getCurrentUserValue(): User | null {
     return this.currentUser;
+  }
+
+  setCurrentUser(user: User): void {
+    this.currentUser = user;
+    this.currentUserSubject.next(user);
+    localStorage.setItem('cinebook_current_user', JSON.stringify(user));
   }
 
   updateUser(updates: Partial<User>): Observable<{ success: boolean; message: string; user?: User }> {
@@ -182,6 +239,11 @@ export class AuthService {
     return stored ? JSON.parse(stored) : [];
   }
 
+  private getStoredPasswords(): { [email: string]: string } {
+    const stored = localStorage.getItem('cinebook_passwords');
+    return stored ? JSON.parse(stored) : {};
+  }
+
   private loadFromLocalStorage(): void {
     const userStr = localStorage.getItem('cinebook_current_user');
     if (userStr) {
@@ -200,3 +262,4 @@ export class AuthService {
     }
   }
 }
+

@@ -28,7 +28,7 @@ export class BookingSuccessComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const bookingId = this.route.snapshot.queryParamMap.get('bookingId');
+    const bookingId = this.route.snapshot.queryParamMap.get('bookingId') || this.route.snapshot.queryParamMap.get('id');
     if (bookingId) {
       this.loadBooking(bookingId);
     } else {

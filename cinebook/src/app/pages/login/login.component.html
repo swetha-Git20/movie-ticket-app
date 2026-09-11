@@ -4,29 +4,35 @@
   <div class="auth-container">
     <div class="auth-header">
       <h1 class="auth-title">Welcome Back</h1>
-      <p class="auth-subtitle">Sign in to continue your movie journey</p>
+      <p class="auth-subtitle">Sign in to continue your movie booking & checkout</p>
     </div>
 
     <form class="auth-form" (ngSubmit)="login()">
       <div class="form-group">
-        <label class="form-label">Email</label>
+        <label class="form-label" for="login-email">Email Address</label>
         <input 
+          id="login-email"
           type="email" 
+          name="email"
           class="form-input" 
           placeholder="your@email.com" 
           [(ngModel)]="email"
           [disabled]="isLoading"
+          required
         />
       </div>
 
       <div class="form-group">
-        <label class="form-label">Password</label>
+        <label class="form-label" for="login-password">Password</label>
         <input 
+          id="login-password"
           type="password" 
+          name="password"
           class="form-input" 
           placeholder="••••••••" 
           [(ngModel)]="password"
           [disabled]="isLoading"
+          required
         />
       </div>
 
@@ -39,7 +45,7 @@
         type="submit" 
         class="submit-btn"
         [disabled]="isLoading">
-        <span *ngIf="!isLoading">Sign In</span>
+        <span *ngIf="!isLoading">Sign In & Proceed</span>
         <span *ngIf="isLoading">
           <span class="spinner"></span>
           Signing in...
@@ -57,3 +63,4 @@
 </main>
 
 <app-footer></app-footer>
+

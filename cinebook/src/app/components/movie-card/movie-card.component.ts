@@ -24,4 +24,12 @@ export class MovieCardComponent {
   navigateToMovie(): void {
     this.router.navigate(['/movies', this.movie.id]);
   }
+
+  onImgError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (img) {
+      img.src = 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=600&q=80';
+    }
+  }
 }
+

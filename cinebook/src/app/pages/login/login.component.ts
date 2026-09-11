@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { BookingService } from '../../services/booking.service';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 
@@ -26,6 +27,7 @@ export class LoginComponent {
 
   constructor(
     private authService: AuthService,
+    private bookingService: BookingService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
@@ -44,11 +46,16 @@ export class LoginComponent {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.authService.login({ email: this.email, password: this.password }).subscribe(result => {
+    this.authService.login({ email: this.email.trim(), password: this.password }).subscribe(result => {
       this.isLoading = false;
       if (result.success) {
-        const redirectUrl = this.route.snapshot.queryParamMap.get('redirect') || '/';
-        this.router.navigate([redirectUrl]);
+        const redirectUrl = this.route.snapshot.queryParamMap.get('returnUrl')
+          || this.route.snapshot.queryParamMap.get('redirect')
+          || localStorage.getItem('cinebook_redirect_url')
+          || (this.bookingService.getSelectedSeatsValue().length > 0 ? '/checkout' : '/home');
+
+        localStorage.removeItem('cinebook_redirect_url');
+        this.router.navigateByUrl(redirectUrl);
       } else {
         this.errorMessage = result.message;
       }
@@ -56,7 +63,8 @@ export class LoginComponent {
   }
 
   navigateToSignup(): void {
-    this.router.navigate(['/signup']);
+    const queryParams = this.route.snapshot.queryParams;
+    this.router.navigate(['/signup'], { queryParams });
   }
 
   isValidEmail(email: string): boolean {
@@ -64,3 +72,4 @@ export class LoginComponent {
     return emailRegex.test(email);
   }
 }
+

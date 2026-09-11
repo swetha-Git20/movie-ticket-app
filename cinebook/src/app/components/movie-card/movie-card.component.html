@@ -1,35 +1,40 @@
-<div class="movie-card" (click)="navigateToMovie()">
-  <div class="movie-poster">
-    <img [src]="movie.poster" [alt]="movie.title" loading="lazy" />
+<div class="cb-movie-card" (click)="navigateToMovie()">
+  <div class="poster-media-box">
+    <img [src]="movie.poster" [alt]="movie.title" class="poster-img" loading="lazy" (error)="onImgError($event)" />
     
-    <div class="top-badges">
-      <span class="language-tag">{{ movie.language }}</span>
-      <div class="rating-badge">
+    <!-- Top Badges Overlay -->
+    <div class="poster-top-badges">
+      <span class="cb-lang-chip">{{ movie.language }}</span>
+      <div class="cb-star-badge">
         <span class="material-icons star-icon">star</span>
-        <span class="rating">{{ movie.rating }}</span>
+        <span>{{ movie.rating }}</span>
       </div>
     </div>
 
-    <div class="format-badges" *ngIf="movie.format && movie.format.length > 0">
-      <span class="fmt-pill" *ngFor="let fmt of movie.format.slice(0, 2)">{{ fmt }}</span>
+    <!-- Format Chips Overlay -->
+    <div class="poster-format-chips" *ngIf="movie.format && movie.format.length > 0">
+      <span class="fmt-chip" *ngFor="let fmt of movie.format.slice(0, 2)">{{ fmt }}</span>
     </div>
 
-    <div class="movie-overlay">
-      <button class="book-btn" (click)="$event.stopPropagation(); onBookNow()">
+    <!-- Hover Overlay -->
+    <div class="poster-hover-overlay">
+      <button class="cb-card-book-btn" (click)="$event.stopPropagation(); onBookNow()">
         <span class="material-icons">confirmation_number</span>
-        Book Tickets
+        BOOK NOW
       </button>
     </div>
   </div>
   
-  <div class="movie-info">
-    <h3 class="movie-title">{{ movie.title }}</h3>
-    <div class="movie-meta">
-      <span class="movie-genre">{{ movie.genre.slice(0, 2).join(', ') }}</span>
-      <span class="movie-duration">{{ movie.duration }}</span>
+  <div class="poster-card-body">
+    <h3 class="movie-card-title" [title]="movie.title">{{ movie.title }}</h3>
+    <div class="movie-card-genres">
+      <span>{{ movie.genre.slice(0, 2).join(' • ') }}</span>
+      <span class="dot-separator">•</span>
+      <span>{{ movie.duration }}</span>
     </div>
-    <div class="movie-price-row">
-      <span class="price-text">From <strong>₹{{ movie.price }}</strong></span>
+    <div class="movie-card-footer">
+      <span class="price-label">Tickets from <strong class="price-val">₹{{ movie.price }}</strong></span>
+      <span class="view-shows-link">Book →</span>
     </div>
   </div>
 </div>

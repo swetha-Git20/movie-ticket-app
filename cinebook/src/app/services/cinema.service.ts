@@ -20,7 +20,7 @@ export class CinemaService {
     },
     {
       id: 'c2',
-      name: 'PVR Grand Mall - Velachery',
+      name: 'CineBook Grand Mall - Velachery',
       city: 'Chennai',
       address: 'Grand Square Mall, Velachery Bypass Rd, Chennai',
       facilities: ['4DX', 'Dolby Atmos', 'Playhouse', 'Parking', 'Gourmet Food'],

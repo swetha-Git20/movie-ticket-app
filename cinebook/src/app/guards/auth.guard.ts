@@ -13,6 +13,8 @@ export const authGuard: CanActivateFn = (route, state) => {
   // Store the attempted URL for redirect after login
   localStorage.setItem('cinebook_redirect_url', state.url);
   
-  router.navigate(['/login']);
+  router.navigate(['/login'], {
+    queryParams: { returnUrl: state.url }
+  });
   return false;
 };

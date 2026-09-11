@@ -21,7 +21,7 @@
       <span class="step-arrow">→</span>
       <div class="step-pill active">
         <span class="step-num">4</span>
-        <span>4. Payment & Confirm</span>
+        <span>4. Contact & Payment</span>
       </div>
     </div>
   </section>
@@ -31,11 +31,11 @@
     <div class="header-content">
       <button class="back-btn" (click)="goBack()">
         <span class="material-icons">arrow_back</span>
-        Back
+        Back to Snacks
       </button>
       <div class="header-info">
         <h1 class="page-title">Booking Checkout & Payment</h1>
-        <p class="page-subtitle">Review your booking details and make payment securely</p>
+        <p class="page-subtitle">Confirm your ticket details, enter contact info, and pay securely via UPI, QR, or Card</p>
       </div>
     </div>
   </section>
@@ -108,7 +108,10 @@
 
         <!-- Price Breakdown in ₹ -->
         <div class="summary-card glass-panel pricing-card">
-          <h3 class="card-heading">Payment Breakdown</h3>
+          <h3 class="card-heading">
+            <span class="material-icons">receipt</span>
+            Payment Breakdown
+          </h3>
           <div class="price-breakdown">
             <div class="price-row">
               <span>Tickets Subtotal</span>
@@ -134,19 +137,122 @@
         </div>
       </div>
 
-      <!-- Right Column: Payment & Promo -->
+      <!-- Right Column: User Identification & Payment Options -->
       <div class="payment-column">
-        <!-- Promo Code Section -->
+        <!-- 1. User Contact & Account Section -->
+        <div class="user-details-card glass-panel">
+          <div class="user-card-header">
+            <h3 class="card-heading">
+              <span class="material-icons">person_pin</span>
+              Ticket Delivery & Contact Details
+            </h3>
+            
+            <!-- Logged-in Indicator -->
+            <div class="auth-status-chip" *ngIf="currentUser">
+              <span class="dot-online"></span>
+              <span>Signed In as {{ currentUser.name }}</span>
+            </div>
+          </div>
+
+          <!-- Tabs for Guest / Quick vs. Sign In -->
+          <div class="auth-tabs" *ngIf="!currentUser">
+            <button 
+              class="auth-tab-btn" 
+              [class.active]="authTab === 'guest'"
+              (click)="authTab = 'guest'">
+              <span class="material-icons">flash_on</span>
+              Quick Booking / Guest
+            </button>
+            <button 
+              class="auth-tab-btn" 
+              [class.active]="authTab === 'login'"
+              (click)="authTab = 'login'">
+              <span class="material-icons">login</span>
+              Already have an Account? Sign In
+            </button>
+          </div>
+
+          <!-- Option A: Guest / Quick Form -->
+          <div class="auth-form-body" *ngIf="authTab === 'guest' || currentUser">
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label">Full Name <span class="req">*</span></label>
+                <div class="input-with-icon">
+                  <span class="material-icons input-icon">badge</span>
+                  <input type="text" class="cb-input" placeholder="e.g. Swetha R" [(ngModel)]="userName" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Mobile Number <span class="req">*</span></label>
+                <div class="input-with-icon">
+                  <span class="material-icons input-icon">phone_android</span>
+                  <input type="tel" class="cb-input" placeholder="10-digit mobile number" [(ngModel)]="userMobile" maxlength="10" />
+                </div>
+                <span class="helper-text">SMS with Booking ID & Seat numbers will be sent here</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Email Address <span class="req">*</span></label>
+              <div class="input-with-icon">
+                <span class="material-icons input-icon">email</span>
+                <input type="email" class="cb-input" placeholder="name@example.com" [(ngModel)]="userEmail" />
+              </div>
+              <span class="helper-text">Official CineBook digital ticket with QR code will be emailed here</span>
+            </div>
+          </div>
+
+          <!-- Option B: Sign In Form -->
+          <div class="auth-form-body signin-box" *ngIf="authTab === 'login' && !currentUser">
+            <p class="signin-desc">Sign in to earn CineBook reward points and access your saved bookings.</p>
+            
+            <div class="form-group">
+              <label class="form-label">Email ID</label>
+              <div class="input-with-icon">
+                <span class="material-icons input-icon">mail_outline</span>
+                <input type="email" class="cb-input" placeholder="your@email.com" [(ngModel)]="loginEmail" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <div class="input-with-icon">
+                <span class="material-icons input-icon">lock_outline</span>
+                <input type="password" class="cb-input" placeholder="Enter password" [(ngModel)]="loginPassword" (keyup.enter)="onSignIn()" />
+              </div>
+            </div>
+
+            <div class="signin-actions">
+              <button class="signin-submit-btn" [disabled]="isLoggingIn" (click)="onSignIn()">
+                <span *ngIf="!isLoggingIn">Sign In & Continue</span>
+                <span *ngIf="isLoggingIn">Signing in...</span>
+              </button>
+            </div>
+
+            <div class="auth-alert error-alert" *ngIf="loginError">
+              <span class="material-icons">error_outline</span>
+              <span>{{ loginError }}</span>
+            </div>
+
+            <div class="auth-alert success-alert" *ngIf="loginSuccess">
+              <span class="material-icons">check_circle_outline</span>
+              <span>{{ loginSuccess }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Promo Code Section -->
         <div class="promo-card glass-panel">
           <h3 class="card-heading">
             <span class="material-icons">local_offer</span>
-            Apply Promo Code
+            Apply Promo Code / Coupon
           </h3>
           <div class="promo-input-group" *ngIf="!couponValid">
             <input 
               type="text" 
               class="promo-input" 
-              placeholder="e.g. FIRSTFREE or WEEKEND50" 
+              placeholder="e.g. CINEFIRST or WEEKEND50" 
               [(ngModel)]="couponCode"
               (keyup.enter)="applyCoupon()"
             />
@@ -169,27 +275,34 @@
           </div>
         </div>
 
-        <!-- Payment Methods -->
+        <!-- 3. Professional Payment Methods Section -->
         <div class="payment-methods-card glass-panel">
           <h3 class="card-heading">
-            <span class="material-icons">payment</span>
-            Choose Payment Method
+            <span class="material-icons">account_balance_wallet</span>
+            Choose Payment Gateway & Pay
           </h3>
 
           <div class="payment-tabs">
             <button 
               class="payment-tab" 
-              [class.active]="selectedPaymentMethod === 'upi'"
-              (click)="selectPaymentMethod('upi')">
-              <span class="material-icons">qr_code_2</span>
-              <span>UPI (Instant)</span>
+              [class.active]="selectedPaymentMethod === 'upi-qr'"
+              (click)="selectPaymentMethod('upi-qr')">
+              <span class="material-icons">qr_code_scanner</span>
+              <span>Instant QR</span>
+            </button>
+            <button 
+              class="payment-tab" 
+              [class.active]="selectedPaymentMethod === 'upi-id'"
+              (click)="selectPaymentMethod('upi-id')">
+              <span class="material-icons">alternate_email</span>
+              <span>UPI ID</span>
             </button>
             <button 
               class="payment-tab" 
               [class.active]="selectedPaymentMethod === 'card'"
               (click)="selectPaymentMethod('card')">
               <span class="material-icons">credit_card</span>
-              <span>Cards</span>
+              <span>Credit / Debit Card</span>
             </button>
             <button 
               class="payment-tab" 
@@ -198,56 +311,188 @@
               <span class="material-icons">account_balance</span>
               <span>Net Banking</span>
             </button>
+            <button 
+              class="payment-tab" 
+              [class.active]="selectedPaymentMethod === 'wallet'"
+              (click)="selectPaymentMethod('wallet')">
+              <span class="material-icons">wallet</span>
+              <span>Wallets</span>
+            </button>
           </div>
 
-          <!-- UPI Form -->
-          <div class="payment-details-box" *ngIf="selectedPaymentMethod === 'upi'">
-            <label class="form-label">Enter UPI ID (Google Pay / PhonePe / Paytm / BHIM):</label>
-            <input type="text" class="form-input" [(ngModel)]="upiId" placeholder="username@okhdfcbank" />
-            <div class="upi-apps-row">
-              <span class="upi-badge">GPay</span>
-              <span class="upi-badge">PhonePe</span>
-              <span class="upi-badge">Paytm</span>
-              <span class="upi-badge">BHIM</span>
+          <!-- Mode 1: Dynamic UPI QR Code -->
+          <div class="payment-details-box qr-payment-box" *ngIf="selectedPaymentMethod === 'upi-qr'">
+            <div class="qr-layout">
+              <div class="qr-visual-wrapper">
+                <!-- Live SVG Styled QR Code with CineBook Badge -->
+                <div class="qr-code-graphic">
+                  <div class="qr-scanner-frame">
+                    <svg viewBox="0 0 160 160" class="qr-svg">
+                      <!-- Simulated high-density QR pattern -->
+                      <rect width="160" height="160" fill="#ffffff" rx="12" />
+                      <!-- Top-left Corner -->
+                      <rect x="15" y="15" width="40" height="40" fill="#0b0f19" rx="6" />
+                      <rect x="23" y="23" width="24" height="24" fill="#ffffff" rx="3" />
+                      <rect x="29" y="29" width="12" height="12" fill="#e50914" rx="2" />
+                      <!-- Top-right Corner -->
+                      <rect x="105" y="15" width="40" height="40" fill="#0b0f19" rx="6" />
+                      <rect x="113" y="23" width="24" height="24" fill="#ffffff" rx="3" />
+                      <rect x="119" y="29" width="12" height="12" fill="#e50914" rx="2" />
+                      <!-- Bottom-left Corner -->
+                      <rect x="15" y="105" width="40" height="40" fill="#0b0f19" rx="6" />
+                      <rect x="23" y="113" width="24" height="24" fill="#ffffff" rx="3" />
+                      <rect x="29" y="119" width="12" height="12" fill="#e50914" rx="2" />
+                      <!-- Pattern Blocks -->
+                      <rect x="65" y="15" width="10" height="20" fill="#0b0f19" />
+                      <rect x="85" y="25" width="10" height="10" fill="#0b0f19" />
+                      <rect x="65" y="45" width="30" height="10" fill="#0b0f19" />
+                      <rect x="15" y="65" width="20" height="10" fill="#0b0f19" />
+                      <rect x="45" y="65" width="30" height="30" fill="#0b0f19" />
+                      <rect x="85" y="65" width="20" height="20" fill="#0b0f19" />
+                      <rect x="115" y="65" width="30" height="10" fill="#0b0f19" />
+                      <rect x="15" y="85" width="15" height="10" fill="#0b0f19" />
+                      <rect x="115" y="85" width="15" height="30" fill="#0b0f19" />
+                      <rect x="65" y="105" width="20" height="20" fill="#0b0f19" />
+                      <rect x="95" y="105" width="10" height="30" fill="#0b0f19" />
+                      <rect x="65" y="135" width="40" height="10" fill="#0b0f19" />
+                      <rect x="135" y="125" width="10" height="20" fill="#0b0f19" />
+                      <!-- Center CineBook Logo -->
+                      <circle cx="80" cy="80" r="16" fill="#e50914" />
+                      <polygon points="76,73 88,80 76,87" fill="#ffffff" />
+                    </svg>
+                  </div>
+                  <div class="qr-brand-label">Scan with any UPI App</div>
+                </div>
+
+                <div class="qr-info-column">
+                  <div class="qr-amount-badge">
+                    <span>Payable Amount:</span>
+                    <strong class="qr-amount-val">₹{{ total }}</strong>
+                  </div>
+
+                  <div class="qr-timer-box">
+                    <span class="material-icons timer-icon">timer</span>
+                    <span>QR Code expires in <strong>{{ qrFormattedTime }}</strong></span>
+                  </div>
+
+                  <p class="qr-instructions">Open <strong>GPay, PhonePe, Paytm, BHIM or Cred</strong> on your phone and scan to pay instantly.</p>
+
+                  <div class="upi-supported-icons">
+                    <span class="upi-chip gpay">GPay</span>
+                    <span class="upi-chip phonepe">PhonePe</span>
+                    <span class="upi-chip paytm">Paytm</span>
+                    <span class="upi-chip bhim">BHIM</span>
+                    <span class="upi-chip cred">Cred</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Card Form -->
+          <!-- Mode 2: UPI ID -->
+          <div class="payment-details-box" *ngIf="selectedPaymentMethod === 'upi-id'">
+            <label class="form-label">Enter Virtual Payment Address (UPI ID):</label>
+            <div class="input-with-icon">
+              <span class="material-icons input-icon">alternate_email</span>
+              <input type="text" class="cb-input" [(ngModel)]="upiId" placeholder="username@okhdfcbank" />
+            </div>
+
+            <!-- Quick Handle Buttons -->
+            <div class="upi-handles-row">
+              <span class="handle-label">Quick select:</span>
+              <button class="handle-pill" (click)="setUpiHandle('@okhdfcbank')">@okhdfcbank</button>
+              <button class="handle-pill" (click)="setUpiHandle('@okaxis')">@okaxis</button>
+              <button class="handle-pill" (click)="setUpiHandle('@ybl')">@ybl</button>
+              <button class="handle-pill" (click)="setUpiHandle('@paytm')">@paytm</button>
+              <button class="handle-pill" (click)="setUpiHandle('@ibl')">@ibl</button>
+            </div>
+          </div>
+
+          <!-- Mode 3: Credit / Debit Card Form -->
           <div class="payment-details-box" *ngIf="selectedPaymentMethod === 'card'">
-            <label class="form-label">Card Number:</label>
-            <input type="text" class="form-input" [(ngModel)]="cardNumber" placeholder="4532 8976 1234 5678" />
-            <div class="card-extra-row">
-              <div>
-                <label class="form-label">Expiry Date:</label>
-                <input type="text" class="form-input" [(ngModel)]="cardExpiry" placeholder="MM/YY" />
+            <div class="form-group">
+              <label class="form-label">Card Number:</label>
+              <div class="input-with-icon">
+                <span class="material-icons input-icon">credit_card</span>
+                <input type="text" class="cb-input" [(ngModel)]="cardNumber" placeholder="4532 8976 1234 5678" maxlength="19" />
               </div>
-              <div>
-                <label class="form-label">CVV:</label>
-                <input type="password" class="form-input" [(ngModel)]="cardCvv" placeholder="123" maxlength="3" />
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label">Cardholder Name:</label>
+                <input type="text" class="cb-input" [(ngModel)]="cardHolder" placeholder="Name on Card" />
               </div>
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label class="form-label">Expiry (MM/YY):</label>
+                  <input type="text" class="cb-input" [(ngModel)]="cardExpiry" placeholder="MM/YY" maxlength="5" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">CVV:</label>
+                  <input type="password" class="cb-input" [(ngModel)]="cardCvv" placeholder="123" maxlength="4" />
+                </div>
+              </div>
+            </div>
+
+            <div class="card-security-badge">
+              <span class="material-icons sec-icon">verified_user</span>
+              <span>256-bit Bank Grade Encrypted & PCI-DSS Compliant</span>
             </div>
           </div>
 
-          <!-- Net Banking -->
+          <!-- Mode 4: Net Banking -->
           <div class="payment-details-box" *ngIf="selectedPaymentMethod === 'netbanking'">
-            <label class="form-label">Select Bank:</label>
-            <select class="form-input" [(ngModel)]="selectedBank">
-              <option>HDFC Bank</option>
-              <option>State Bank of India</option>
-              <option>ICICI Bank</option>
-              <option>Axis Bank</option>
-              <option>Indian Bank</option>
-            </select>
+            <label class="form-label">Select from Popular Banks:</label>
+            <div class="bank-grid">
+              <button 
+                *ngFor="let bank of ['HDFC Bank', 'State Bank of India', 'ICICI Bank', 'Axis Bank', 'Kotak Bank', 'Indian Bank']"
+                class="bank-select-btn"
+                [class.selected]="selectedBank === bank"
+                (click)="selectedBank = bank">
+                <span class="material-icons bank-icon">account_balance</span>
+                <span>{{ bank }}</span>
+              </button>
+            </div>
           </div>
 
-          <!-- Pay Button -->
+          <!-- Mode 5: Wallets -->
+          <div class="payment-details-box" *ngIf="selectedPaymentMethod === 'wallet'">
+            <label class="form-label">Select Digital Wallet:</label>
+            <div class="wallet-options">
+              <label class="wallet-radio-label" [class.selected]="selectedWallet === 'Paytm Wallet'">
+                <input type="radio" name="wallet" value="Paytm Wallet" [(ngModel)]="selectedWallet" />
+                <span>Paytm Wallet (Instant Checkout)</span>
+              </label>
+              <label class="wallet-radio-label" [class.selected]="selectedWallet === 'PhonePe Wallet'">
+                <input type="radio" name="wallet" value="PhonePe Wallet" [(ngModel)]="selectedWallet" />
+                <span>PhonePe Wallet & UPI</span>
+              </label>
+              <label class="wallet-radio-label" [class.selected]="selectedWallet === 'Amazon Pay'">
+                <input type="radio" name="wallet" value="Amazon Pay" [(ngModel)]="selectedWallet" />
+                <span>Amazon Pay Balance</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Form Error Notice -->
+          <div class="checkout-error-banner" *ngIf="formError">
+            <span class="material-icons">error</span>
+            <span>{{ formError }}</span>
+          </div>
+
+          <!-- Pay & Confirm Button -->
           <button 
             class="pay-btn" 
             [disabled]="isProcessing"
             (click)="openConfirmModal()">
-            <span *ngIf="!isProcessing">Pay ₹{{ total }} & Confirm Booking</span>
+            <span *ngIf="!isProcessing" class="pay-btn-content">
+              <span class="material-icons">lock</span>
+              <span>Pay ₹{{ total }} & Confirm Tickets</span>
+              <span class="material-icons arrow">arrow_forward</span>
+            </span>
             <span *ngIf="isProcessing" class="processing-text">
-              <span class="spinner-small"></span> Processing Payment...
+              <span class="spinner-small"></span> {{ processingStep || 'Processing Payment...' }}
             </span>
           </button>
         </div>
@@ -257,20 +502,46 @@
 </main>
 
 <!-- Confirm Payment Modal -->
-<app-modal [isOpen]="showConfirmModal" [title]="'Confirm Movie Booking'" (close)="closeConfirmModal()">
+<app-modal [isOpen]="showConfirmModal" [title]="'Confirm Movie Ticket Payment'" (close)="closeConfirmModal()">
   <div class="confirm-modal-content">
-    <div class="confirm-movie-title">{{ movie?.title }}</div>
-    <p class="confirm-cinema">{{ cinema?.name }} • {{ showtime?.time }}</p>
+    <div class="confirm-movie-header">
+      <div class="confirm-movie-title">{{ movie?.title }}</div>
+      <p class="confirm-cinema">{{ cinema?.name }} • {{ showtime?.time }}</p>
+    </div>
+
     <div class="confirm-details-list">
-      <div class="confirm-row"><span>Seats:</span><strong>{{ getSelectedSeatsList() }}</strong></div>
-      <div class="confirm-row"><span>Date:</span><strong>{{ formatDate(showtime?.date) }}</strong></div>
-      <div class="confirm-row"><span>Total Amount:</span><strong class="confirm-total">₹{{ total }}</strong></div>
-      <div class="confirm-row"><span>Payment Via:</span><strong>{{ getPaymentMethodLabel(selectedPaymentMethod) }}</strong></div>
+      <div class="confirm-row">
+        <span>Booked For:</span>
+        <strong>{{ userName }} ({{ userMobile }})</strong>
+      </div>
+      <div class="confirm-row">
+        <span>Email for E-Ticket:</span>
+        <strong>{{ userEmail }}</strong>
+      </div>
+      <div class="confirm-row">
+        <span>Seats:</span>
+        <strong class="seat-badge-list">{{ getSelectedSeatsList() }}</strong>
+      </div>
+      <div class="confirm-row">
+        <span>Date & Timing:</span>
+        <strong>{{ formatDate(showtime?.date) }} • {{ showtime?.time }}</strong>
+      </div>
+      <div class="confirm-row">
+        <span>Payment Method:</span>
+        <strong>{{ getPaymentMethodLabel(selectedPaymentMethod) }}</strong>
+      </div>
+      <div class="confirm-row total-highlight">
+        <span>Final Payable Amount:</span>
+        <strong class="confirm-total">₹{{ total }}</strong>
+      </div>
     </div>
 
     <div class="confirm-actions">
-      <button class="modal-cancel-btn" (click)="closeConfirmModal()">Cancel</button>
-      <button class="modal-confirm-btn" (click)="processPayment()">Pay ₹{{ total }}</button>
+      <button class="modal-cancel-btn" (click)="closeConfirmModal()">Change Details</button>
+      <button class="modal-confirm-btn" (click)="processPayment()">
+        <span class="material-icons">check_circle</span>
+        Authorize & Pay ₹{{ total }}
+      </button>
     </div>
   </div>
 </app-modal>

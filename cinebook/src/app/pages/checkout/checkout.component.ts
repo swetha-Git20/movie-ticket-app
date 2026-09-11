@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -31,13 +31,27 @@ import { ModalComponent } from '../../components/modal/modal.component';
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.css']
 })
-export class CheckoutComponent implements OnInit {
+export class CheckoutComponent implements OnInit, OnDestroy {
   selectedSeats: any[] = [];
   foodCart: CartItem[] = [];
   showtime: Showtime | null = null;
   movie: Movie | null = null;
   cinema: Cinema | null = null;
   currentUser: User | null = null;
+  
+  // User Details & Auth State
+  authTab: 'guest' | 'login' = 'guest';
+  userName: string = '';
+  userEmail: string = '';
+  userMobile: string = '';
+  saveDetails: boolean = true;
+  
+  // Login Form
+  loginEmail: string = '';
+  loginPassword: string = '';
+  loginError: string = '';
+  loginSuccess: string = '';
+  isLoggingIn: boolean = false;
   
   // Pricing in ₹
   seatsTotal = 0;
@@ -52,16 +66,27 @@ export class CheckoutComponent implements OnInit {
   couponMessage = '';
   appliedCoupon: any = null;
   
-  // Payment
-  selectedPaymentMethod = 'upi';
-  upiId = 'user@okhdfcbank';
-  cardNumber = '4532 8976 1234 5678';
-  cardExpiry = '08/28';
-  cardCvv = '345';
-  selectedBank = 'HDFC Bank';
+  // Payment Options
+  selectedPaymentMethod: 'upi-qr' | 'upi-id' | 'card' | 'netbanking' | 'wallet' = 'upi-qr';
+  upiId: string = 'user@okhdfcbank';
+  cardNumber: string = '4532 8976 1234 5678';
+  cardHolder: string = '';
+  cardExpiry: string = '08/28';
+  cardCvv: string = '345';
+  selectedBank: string = 'HDFC Bank';
+  selectedWallet: string = 'Paytm Wallet';
   
+  // Dynamic QR Code countdown timer
+  qrTimerSeconds = 600; // 10 minutes
+  qrTimerInterval: any = null;
+  qrFormattedTime = '10:00';
+  isQrScanned = false;
+  
+  // Processing & Confirmation
   isProcessing = false;
+  processingStep = '';
   showConfirmModal = false;
+  formError = '';
 
   constructor(
     private bookingService: BookingService,
@@ -75,26 +100,28 @@ export class CheckoutComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.currentUser = this.authService.getCurrentUserValue();
-    if (!this.currentUser) {
-      this.authService.getCurrentUser().subscribe(user => {
-        this.currentUser = user;
-        if (!user) {
-          // Create guest/demo user if not logged in to ensure flawless checkout
-          const guestUser: User = {
-            id: 'user-guest-' + Date.now(),
-            name: 'Cinema Guest',
-            email: 'guest@cinebook.in',
-            mobile: '9876543210',
-            city: 'Chennai',
-            preferences: { preferredLanguage: 'Tamil', preferredFormat: '2D' }
-          };
-          this.currentUser = guestUser;
-        }
-      });
-    }
+    this.authService.getCurrentUser().subscribe(user => {
+      this.currentUser = user;
+      if (user) {
+        this.userName = user.name || '';
+        this.userEmail = user.email || '';
+        this.userMobile = user.mobile || '9876543210';
+        this.cardHolder = user.name || '';
+      } else {
+        // Defaults for quick demo convenience
+        if (!this.userName) this.userName = 'Swetha R';
+        if (!this.userEmail) this.userEmail = 'swetha@example.com';
+        if (!this.userMobile) this.userMobile = '9876543210';
+        if (!this.cardHolder) this.cardHolder = 'Swetha R';
+      }
+    });
 
     this.loadBookingData();
+    this.startQrTimer();
+  }
+
+  ngOnDestroy(): void {
+    this.stopQrTimer();
   }
 
   loadBookingData(): void {
@@ -130,6 +157,29 @@ export class CheckoutComponent implements OnInit {
     this.total = Math.max(0, subtotal + this.convenienceFee - this.couponDiscount);
   }
 
+  // QR Timer Countdown
+  startQrTimer(): void {
+    this.stopQrTimer();
+    this.qrTimerInterval = setInterval(() => {
+      if (this.qrTimerSeconds > 0) {
+        this.qrTimerSeconds--;
+        const mins = Math.floor(this.qrTimerSeconds / 60);
+        const secs = this.qrTimerSeconds % 60;
+        this.qrFormattedTime = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      } else {
+        this.qrTimerSeconds = 600; // Reset
+      }
+    }, 1000);
+  }
+
+  stopQrTimer(): void {
+    if (this.qrTimerInterval) {
+      clearInterval(this.qrTimerInterval);
+      this.qrTimerInterval = null;
+    }
+  }
+
+  // Coupon management
   applyCoupon(): void {
     if (!this.couponCode.trim()) {
       this.couponMessage = 'Please enter a valid coupon code';
@@ -142,14 +192,14 @@ export class CheckoutComponent implements OnInit {
       if (result.valid) {
         this.couponValid = true;
         this.couponDiscount = result.discount;
-        this.appliedCoupon = result.offer;
+        this.appliedCoupon = result.offer || null;
         this.couponMessage = `🎉 Coupon applied! You saved ₹${result.discount}`;
         this.calculateTotal();
       } else {
         this.couponValid = false;
         this.couponDiscount = 0;
         this.appliedCoupon = null;
-        this.couponMessage = 'Invalid or expired promo code. Try FIRSTFREE or WEEKEND50';
+        this.couponMessage = 'Invalid or expired coupon code. Try CINEFIRST or WEEKEND50';
         this.calculateTotal();
       }
     });
@@ -164,15 +214,82 @@ export class CheckoutComponent implements OnInit {
     this.calculateTotal();
   }
 
-  selectPaymentMethod(method: string): void {
+  // Auth / Login Handler in Checkout
+  onSignIn(): void {
+    this.loginError = '';
+    this.loginSuccess = '';
+
+    if (!this.loginEmail.trim() || !this.loginPassword.trim()) {
+      this.loginError = 'Please enter both email and password';
+      return;
+    }
+
+    this.isLoggingIn = true;
+    this.authService.login({
+      email: this.loginEmail.trim(),
+      password: this.loginPassword
+    }).subscribe({
+      next: (res) => {
+        this.isLoggingIn = false;
+        if (res.success && res.user) {
+          const user = res.user;
+          this.currentUser = user;
+          this.userName = user.name;
+          this.userEmail = user.email;
+          this.userMobile = user.mobile || this.userMobile;
+          this.cardHolder = user.name;
+          this.loginSuccess = `Welcome back, ${user.name}! Account linked.`;
+          this.authTab = 'guest';
+        } else {
+          this.loginError = res.message || 'Invalid credentials. Please check your email and password.';
+        }
+      },
+      error: () => {
+        this.isLoggingIn = false;
+        this.loginError = 'Login failed. Please try again.';
+      }
+    });
+  }
+
+  // Payment Selection
+  selectPaymentMethod(method: 'upi-qr' | 'upi-id' | 'card' | 'netbanking' | 'wallet'): void {
     this.selectedPaymentMethod = method;
   }
 
+  setUpiHandle(handle: string): void {
+    const base = this.upiId.split('@')[0] || 'user';
+    this.upiId = `${base}${handle}`;
+  }
+
+  // Payment Verification & Modal
   openConfirmModal(): void {
-    if (this.selectedSeats.length === 0) {
-      alert('Please select at least one seat');
+    this.formError = '';
+
+    if (!this.userName.trim()) {
+      this.formError = 'Please enter your Full Name';
       return;
     }
+
+    if (!this.userEmail.trim() || !this.userEmail.includes('@')) {
+      this.formError = 'Please enter a valid Email ID for e-ticket delivery';
+      return;
+    }
+
+    if (!this.userMobile.trim() || this.userMobile.length < 10) {
+      this.formError = 'Please enter a valid 10-digit Mobile Number for SMS updates';
+      return;
+    }
+
+    if (this.selectedPaymentMethod === 'upi-id' && !this.upiId.trim()) {
+      this.formError = 'Please enter a valid UPI ID (e.g. name@upi)';
+      return;
+    }
+
+    if (this.selectedPaymentMethod === 'card' && (!this.cardNumber || this.cardNumber.length < 16)) {
+      this.formError = 'Please enter a valid 16-digit Card Number';
+      return;
+    }
+
     this.showConfirmModal = true;
   }
 
@@ -180,24 +297,49 @@ export class CheckoutComponent implements OnInit {
     this.showConfirmModal = false;
   }
 
+  // Payment Execution & Ticket Generation
   processPayment(): void {
-    this.isProcessing = true;
     this.closeConfirmModal();
+    this.isProcessing = true;
+    this.processingStep = 'Connecting to Secure Payment Gateway...';
 
     setTimeout(() => {
-      this.createBooking();
-    }, 1500);
+      this.processingStep = `Verifying ${this.getPaymentMethodLabel(this.selectedPaymentMethod)} transaction...`;
+    }, 1200);
+
+    setTimeout(() => {
+      this.processingStep = 'Authorizing payment & booking seats...';
+    }, 2400);
+
+    setTimeout(() => {
+      this.finalizeBooking();
+    }, 3600);
   }
 
-  createBooking(): void {
+  private finalizeBooking(): void {
     if (!this.showtime || !this.movie || !this.cinema) {
       this.isProcessing = false;
-      alert('Missing required booking details. Please try again.');
       return;
     }
 
-    const bookingData = {
-      userId: this.currentUser ? this.currentUser.id : 'user-guest',
+    // Ensure user is created or updated
+    let userId = this.currentUser?.id;
+    if (!userId) {
+      userId = 'user-' + Date.now();
+      const newUser: User = {
+        id: userId,
+        name: this.userName.trim(),
+        email: this.userEmail.trim(),
+        mobile: this.userMobile.trim(),
+        city: this.cinema.city || 'Chennai',
+        preferences: { preferredLanguage: this.movie.language, preferredFormat: this.showtime.format }
+      };
+      this.authService.setCurrentUser(newUser);
+      this.currentUser = newUser;
+    }
+
+    this.bookingService.createBooking({
+      userId: userId,
       movieId: this.movie.id,
       movieTitle: this.movie.title,
       moviePoster: this.movie.poster,
@@ -207,39 +349,47 @@ export class CheckoutComponent implements OnInit {
       date: this.showtime.date,
       time: this.showtime.time,
       foodCart: this.foodCart,
-      couponCode: this.appliedCoupon?.code,
+      couponCode: this.appliedCoupon ? this.appliedCoupon.code : undefined,
       couponDiscount: this.couponDiscount
-    };
-
-    this.bookingService.createBooking(bookingData).subscribe(booking => {
-      this.isProcessing = false;
-      this.foodService.clearCart();
-      this.router.navigate(['/booking-success'], { 
-        queryParams: { bookingId: booking.id } 
-      });
+    }).subscribe({
+      next: (booking) => {
+        this.isProcessing = false;
+        this.foodService.clearCart();
+        this.router.navigate(['/booking-success'], {
+          queryParams: { bookingId: booking.id, id: booking.id }
+        });
+      },
+      error: (err) => {
+        this.isProcessing = false;
+        console.error('Booking failed:', err);
+        alert('Booking transaction failed. Please try again.');
+      }
     });
   }
 
-  goBack(): void {
-    this.router.navigate(['/food']);
-  }
-
-  getPaymentMethodLabel(method: string): string {
-    switch (method) {
-      case 'upi': return 'Instant UPI (GPay / PhonePe / Paytm / BHIM)';
-      case 'card': return 'Credit / Debit Card (Visa / Mastercard / RuPay)';
-      case 'netbanking': return 'Net Banking';
-      default: return method;
-    }
-  }
-
+  // Helpers
   getSelectedSeatsList(): string {
-    return this.selectedSeats.map(s => s.row + s.number).join(', ');
+    return this.selectedSeats.map(s => `${s.row}${s.number}`).join(', ');
   }
 
   formatDate(dateStr?: string): string {
     if (!dateStr) return '';
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  getPaymentMethodLabel(method: string): string {
+    switch (method) {
+      case 'upi-qr': return 'UPI Dynamic QR Code';
+      case 'upi-id': return `UPI ID (${this.upiId})`;
+      case 'card': return `Credit/Debit Card ending in ${this.cardNumber.slice(-4)}`;
+      case 'netbanking': return `Net Banking (${this.selectedBank})`;
+      case 'wallet': return `Wallet (${this.selectedWallet})`;
+      default: return 'Online Payment';
+    }
+  }
+
+  goBack(): void {
+    this.router.navigate(['/food']);
   }
 }
